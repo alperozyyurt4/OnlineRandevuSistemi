@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OnlineRandevuSistemi.Business.DTOs;
 using OnlineRandevuSistemi.Business.Interfaces;
+using OnlineRandevuSistemi.Core.Enums;
 using OnlineRandevuSistemi.Web.ViewModels;
 using System;
 using System.Linq;
@@ -239,6 +240,22 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             {
                 _logger.LogWarning($"Silme işlemi başarısız oldu. ID: {id}");
                 // Hata mesajı gösterilebilir
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatus(int id, AppointmentStatus status)
+        {
+            var success = await _appointmentService.UpdateAppointmentStatusAsync(id, status);
+            if (!success)
+            {
+                TempData["Error"] = "Randevu durumu güncellenemedi.";
+            }
+            else
+            {
+                TempData["Success"] = "Randevu durumu başarıyla güncellendi.";
             }
 
             return RedirectToAction(nameof(Index));

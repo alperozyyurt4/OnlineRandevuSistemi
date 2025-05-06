@@ -31,6 +31,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="Admin" asp-controller="Appointment" asp-action="Index">Randevular</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">Yönetim Paneli</a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -38,6 +41,16 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            <div class="container mt-2">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success">@TempData["Success"]</div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger">@TempData["Error"]</div>
+                }
+            </div>
             @RenderBody()
 
         </main>

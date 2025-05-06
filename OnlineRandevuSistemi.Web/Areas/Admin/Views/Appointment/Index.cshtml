@@ -28,7 +28,18 @@
                 <td>@item.EmployeeName</td>
                 <td>@item.CustomerName</td>
                 <td>@item.AppointmentDate.ToString("g")</td>
-                <td>@item.Status</td>
+                <td>
+                    <form asp-action="UpdateStatus" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <select name="status" class="form-select form-select-sm w-auto d-inline" onchange="this.form.submit()">
+                            <option value="0" selected="@((int)item.Status == 0)">Beklemede</option>
+                            <option value="1" selected="@((int)item.Status == 1)">Onaylandı</option>
+                            <option value="2" selected="@((int)item.Status == 2)">Tamamlandı</option>
+                            <option value="3" selected="@((int)item.Status == 3)">İptal Edildi</option>
+                            <option value="4" selected="@((int)item.Status == 4)">Gelmedi</option>
+                        </select>
+                    </form>
+                </td>
                 <td>@String.Format("{0:C}", item.Price)</td>
                 <td>
                     <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id">Detay</a>
