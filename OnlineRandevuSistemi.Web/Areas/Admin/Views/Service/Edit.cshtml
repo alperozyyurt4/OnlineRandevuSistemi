@@ -1,0 +1,45 @@
+﻿@model OnlineRandevuSistemi.Business.DTOs.ServiceDto
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Hizmeti Düzenle";
+}
+
+<h2>Hizmeti Düzenle</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <input asp-for="Description" class="form-control" />
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Price" class="control-label"></label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DurationMinutes" class="control-label"></label>
+        <input asp-for="DurationMinutes" class="form-control" />
+        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ImageUrl" class="control-label"></label>
+        <input asp-for="ImageUrl" class="form-control" />
+        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Kaydet</button>
+    <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+</form>
