@@ -30,12 +30,14 @@
     </div>
 
     <div class="col-md-4">
-        <div class="card text-white bg-info shadow">
-            <div class="card-header text-center fw-semibold">Toplam Çalışan</div>
-            <div class="card-body text-center">
-                <h3 class="card-title">@Model.TotalEmployees</h3>
+        <a asp-area="Admin" asp-controller="Employee" asp-action="Index" class="text-decoration-none">       
+            <div class="card text-white bg-info shadow">
+                <div class="card-header text-center fw-semibold">Toplam Çalışan</div>
+                <div class="card-body text-center">
+                    <h3 class="card-title">@Model.TotalEmployees</h3>
+                </div>
             </div>
-        </div>
+        </a>
     </div>
 
     <div class="col-md-6">

@@ -1,0 +1,31 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace OnlineRandevuSistemi.Web.ViewModels
+{
+    public class EmployeeEditViewModel
+    {
+        public int Id { get; set; }
+        public string UserId { get; set; }
+
+        [Required]
+        public string FirstName { get; set; }
+
+        [Required]
+        public string LastName { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        public string PhoneNumber { get; set; }
+
+        public string Address { get; set; }
+        public string Biography { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime? DateOfBirth { get; set; }
+
+        public string? ProfilePicture { get; set; }
+    }
+}

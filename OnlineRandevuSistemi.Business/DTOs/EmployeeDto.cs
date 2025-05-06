@@ -17,6 +17,9 @@ namespace OnlineRandevuSistemi.Business.DTOs
         public string Position { get; set; }
         public string Biography { get; set; }
         public decimal HourlyDate { get; set; }
+        public string Address { get; set; }
+        public DateTime? DateOfBirth{ get; set; }
+        public string? ProfilePicture { get; set; }
         public bool IsAvailable { get; set; }
         public List<int> ServiceIds { get; set; } = new List<int>();
 

@@ -38,6 +38,7 @@ namespace OnlineRandevuSistemi.Business.Services
         {
             var employees = await _employeeRepository.TableNoTracking
                 .Include(e => e.User)
+                .Where(e => !e.IsDeleted)
                 .Include(e => e.EmployeeServices)
                 .ToListAsync();
 
@@ -82,27 +83,50 @@ namespace OnlineRandevuSistemi.Business.Services
             await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<EmployeeDto>(employee);
         }
-
         public async Task<EmployeeDto> UpdateEmployeeAsync(EmployeeDto employeeDto)
         {
-            var employee = await _employeeRepository.GetByIdAsync(employeeDto.Id);
+            // 1. Employee tablosundaki veriyi al
+            var employee = await _employeeRepository.Table
+                .Include(e => e.User) // AppUser tablosuna erişmek için
+                .FirstOrDefaultAsync(e => e.Id == employeeDto.Id);
+
             if (employee == null)
                 throw new Exception("Employee not found");
 
-            employee = _mapper.Map(employeeDto, employee);
+            // 2. AppUser (Identity) alanlarını güncelle
+            employee.User.FirstName = employeeDto.FirstName;
+            employee.User.LastName = employeeDto.LastName;
+            employee.User.Email = employeeDto.Email;
+            employee.User.UserName = employeeDto.Email;
+            employee.User.PhoneNumber = employeeDto.PhoneNumber;
+            employee.User.Address = employeeDto.Address;
+            employee.User.DateOfBirth = employeeDto.DateOfBirth ?? DateTime.Now;
+            employee.User.ProfilePicture = employeeDto.ProfilePicture ?? "/images/default-profile.jpg";
+            employee.User.UpdatedDate = DateTime.Now;
+
+            // 3. Employee alanlarını güncelle
+            employee.Position = employeeDto.Position;
+            employee.Biography = employeeDto.Biography;
+            employee.HourlyDate = employeeDto.HourlyDate;
+            employee.IsAvailable = employeeDto.IsAvailable;
             employee.UpdatedDate = DateTime.Now;
+
+            // 4. Update ve Save işlemi
             await _employeeRepository.UpdateAsync(employee);
             await _unitOfWork.SaveChangesAsync();
+
             return _mapper.Map<EmployeeDto>(employee);
         }
 
         public async Task<bool> DeleteEmployeeAsync(int id)
         {
             var employee = await _employeeRepository.GetByIdAsync(id);
-            if (employee == null)
-                return false;
+            if (employee == null) return false;
 
-            await _employeeRepository.DeleteAsync(id);
+            employee.IsDeleted = true;
+            employee.UpdatedDate = DateTime.Now;
+
+            await _employeeRepository.UpdateAsync(employee);
             await _unitOfWork.SaveChangesAsync();
             return true;
         }

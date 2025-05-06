@@ -1,0 +1,44 @@
+﻿@model IEnumerable<OnlineRandevuSistemi.Business.DTOs.EmployeeDto>
+
+@{
+    ViewData["Title"] = "Çalışanlar";
+    Layout = "_Layout";
+}
+
+<h2>Çalışan Listesi</h2>
+
+<a class="btn btn-success mb-3" asp-action="Create">Yeni Çalışan Ekle</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Ad</th>
+            <th>Soyad</th>
+            <th>Email</th>
+            <th>Pozisyon</th>
+            <th>Saatlik Ücret</th>
+            <th>Durum</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var emp in Model)
+        {
+            <tr>
+                <td>@emp.FirstName</td>
+                <td>@emp.LastName</td>
+                <td>@emp.Email</td>
+                <td>@emp.Position</td>
+                <td>@emp.HourlyDate.ToString("C")</td>
+                <td>
+                    @(emp.IsAvailable ? "Uygun" : "Meşgul")
+                </td>
+                <td>
+                    <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@emp.Id">Düzenle</a>
+                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@emp.Id"
+                       onclick="return confirm('Bu çalışanı silmek istediğinize emin misiniz?');">Sil</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
