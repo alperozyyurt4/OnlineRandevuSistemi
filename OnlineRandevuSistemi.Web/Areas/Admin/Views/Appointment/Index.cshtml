@@ -1,5 +1,46 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<OnlineRandevuSistemi.Business.DTOs.AppointmentDto>
+
 @{
+    Layout = "_Layout";
+    ViewData["Title"] = "Randevu Listesi";
 }
+
+<h2>Randevu Listesi</h2>
+
+<table class="table table-bordered">
+    <a class="btn btn-success mb-3" asp-area="Admin" asp-controller="Appointment" asp-action="Create">Yeni Randevu Ekle</a>
+    <thead>
+        <tr>
+            <th>Hizmet</th>
+            <th>Çalışan</th>
+            <th>Müşteri</th>
+            <th>Tarih</th>
+            <th>Durum</th>
+            <th>Fiyat</th>
+            <th>İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ServiceName</td>
+                <td>@item.EmployeeName</td>
+                <td>@item.CustomerName</td>
+                <td>@item.AppointmentDate.ToString("g")</td>
+                <td>@item.Status</td>
+                <td>@String.Format("{0:C}", item.Price)</td>
+                <td>
+                    <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id">Detay</a>
+                    <a class="btn btn-primary btn-sm" asp-action="Edit" asp-area="Admin" asp-route-id="@item.Id">Düzenle</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Bu randevuyu silmek istediğinizden emin misiniz?');">
+                        Sil
+                    </a>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

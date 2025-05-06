@@ -12,6 +12,7 @@ namespace OnlineRandevuSistemi.Business.DTOs
         public int Id { get; set; }
         public int ServiceId { get; set; }
         public int EmployeeId { get; set; }
+        public int CustomerId { get; set; }
         public DateTime AppointmentDate { get; set; }
         public string Notes { get; set; }
         public AppointmentStatus Status { get; set; }

@@ -1,5 +1,49 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model OnlineRandevuSistemi.Business.DTOs.AppointmentDto
+
 @{
+    ViewData["Title"] = "Randevu Detayları";
+    Layout = "_Layout";
 }
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table">
+    <tr>
+        <th>Hizmet</th>
+        <td>@Model.ServiceName</td>
+    </tr>
+    <tr>
+        <th>Çalışan</th>
+        <td>@Model.EmployeeName</td>
+    </tr>
+    <tr>
+        <th>Müşteri</th>
+        <td>@Model.CustomerName</td>
+    </tr>
+    <tr>
+        <th>Tarih</th>
+        <td>@Model.AppointmentDate.ToString("yyyy-MM-dd HH:mm")</td>
+    </tr>
+    <tr>
+        <th>Randevu Bitiş Zamanı</th>
+        <td>@Model.AppointmentEndTime.ToString("yyyy-MM-dd HH:mm")</td>
+    </tr>
+    <tr>
+        <th>Durum</th>
+        <td>@Model.Status</td>
+    </tr>
+    <tr>
+        <th>Fiyat</th>
+        <td>@Model.Price.ToString("C")</td>
+    </tr>
+    <tr>
+        <th>Notlar</th>
+        <td>@Model.Notes</td>
+    </tr>
+    <tr>
+        <th>Hatırlatıcı Gönderildi mi?</th>
+        <td>@(Model.ReminderSent ? "Evet" : "Hayır")</td>
+    </tr>
+</table>
+
+<a class="btn btn-primary" asp-action="Index">Geri Dön</a>

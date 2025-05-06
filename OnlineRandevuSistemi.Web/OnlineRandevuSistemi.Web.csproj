@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Areas\Admin\ViewModels\" />
     <Folder Include="Areas\ViewModels\" />
   </ItemGroup>
 

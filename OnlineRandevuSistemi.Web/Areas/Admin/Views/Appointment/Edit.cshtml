@@ -1,0 +1,53 @@
+﻿@model OnlineRandevuSistemi.Web.ViewModels.AppointmentCreateViewModel
+
+@{
+    ViewData["Title"] = "Randevu Düzenle";
+    Layout = "_Layout";
+}
+
+<h2>Randevu Düzenle</h2>
+
+<form asp-action="Edit" method="post">
+    <div class="mb-3">
+        <label asp-for="ServiceId" class="form-label">Hizmet</label>
+        <select asp-for="ServiceId" asp-items="Model.Services" class="form-select">
+            <option value="">Seçiniz</option>
+        </select>
+        <span asp-validation-for="ServiceId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EmployeeId" class="form-label">Çalışan</label>
+        <select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select">
+            <option value="">Seçiniz</option>
+        </select>
+        <span asp-validation-for="EmployeeId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CustomerId" class="form-label">Müşteri</label>
+        <select asp-for="CustomerId" asp-items="Model.Customers" class="form-select">
+            <option value="">Seçiniz</option>
+        </select>
+        <span asp-validation-for="CustomerId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="AppointmentDate" class="form-label">Tarih ve Saat</label>
+        <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
+        <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Notes" class="form-label">Notlar</label>
+        <textarea asp-for="Notes" class="form-control"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Kaydet</button>
+    <a asp-action="Index" class="btn btn-secondary">İptal</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

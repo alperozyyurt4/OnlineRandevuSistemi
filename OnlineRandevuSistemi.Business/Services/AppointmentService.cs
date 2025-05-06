@@ -38,24 +38,31 @@ namespace OnlineRandevuSistemi.Business.Services
         public async Task<IEnumerable<AppointmentDto>> GetAllAppointmentsAsync()
         {
             var appointments = await _appointmentRepository.TableNoTracking
+                .Where(a => !a.IsDeleted)
                 .Include(a => a.Employee)
-                .Include(a => a.Service)
+                    .ThenInclude(e => e.User)
                 .Include(a => a.Customer)
+                    .ThenInclude(c => c.User)
+                .Include(a => a.Service)
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<AppointmentDto>>(appointments);
         }
 
+
         public async Task<AppointmentDto> GetAppointmentByIdAsync(int id)
         {
             var appointment = await _appointmentRepository.TableNoTracking
                 .Include(a => a.Employee)
-                .Include(a => a.Service)
+                    .ThenInclude(e => e.User)
                 .Include(a => a.Customer)
+                    .ThenInclude(c => c.User)
+                .Include(a => a.Service)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             return _mapper.Map<AppointmentDto>(appointment);
         }
+
 
         // OnlineRandevuSistemi.Business/Services/AppointmentService.cs - Kalan metotlar
 
@@ -138,7 +145,10 @@ namespace OnlineRandevuSistemi.Business.Services
             if (appointment == null)
                 return false;
 
-            await _appointmentRepository.DeleteAsync(id);
+            appointment.IsDeleted = true;
+            appointment.UpdatedDate = DateTime.Now;
+
+            await _appointmentRepository.UpdateAsync(appointment);
             await _unitOfWork.SaveChangesAsync();
 
             return true;
