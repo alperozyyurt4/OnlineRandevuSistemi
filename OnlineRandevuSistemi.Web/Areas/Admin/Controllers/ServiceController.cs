@@ -62,5 +62,6 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             await _serviceService.DeleteServiceAsync(id);
             return RedirectToAction(nameof(Index));
         }
+
     }
 }

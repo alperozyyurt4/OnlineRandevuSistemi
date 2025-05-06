@@ -29,7 +29,10 @@ namespace OnlineRandevuSistemi.Business.Services
 
         public async Task<IEnumerable<ServiceDto>> GetAllServicesAsync()
         {
-            var services = await _serviceRepository.TableNoTracking.ToListAsync();
+            var services = await _serviceRepository.TableNoTracking
+                .Where(s => !s.IsDeleted)
+                .ToListAsync();
+
             return _mapper.Map<IEnumerable<ServiceDto>>(services);
         }
 
@@ -66,13 +69,13 @@ namespace OnlineRandevuSistemi.Business.Services
         public async Task<bool> DeleteServiceAsync(int id)
         {
             var service = await _serviceRepository.GetByIdAsync(id);
-            if (service == null)
-                return false;
+            if (service == null) return false;
 
             await _serviceRepository.DeleteAsync(id);
             await _unitOfWork.SaveChangesAsync();
 
             return true;
         }
+
     }
 }

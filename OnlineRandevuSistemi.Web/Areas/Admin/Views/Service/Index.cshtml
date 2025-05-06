@@ -33,11 +33,13 @@
                     <td>
                         <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@item.Id">Düzenle</a>
 
-                        <a class="btn btn-sm btn-danger"
-                           asp-area="Admin" asp-controller="Service" asp-action="Delete" asp-route-id="@item.Id"
+                        <a class="btn btn-danger btn-sm"
+                           asp-action="Delete"
+                           asp-route-id="@item.Id"
                            onclick="return confirm('Bu hizmeti silmek istediğinize emin misiniz?');">
                             Sil
                         </a>
+
                     </td>
                 </tr>
             }

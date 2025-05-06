@@ -64,6 +64,7 @@ namespace OnlineRandevuSistemi.DataAccess.Repositories
             return entity;
         }
 
+
         public async Task<bool> ExistsAsync(int id)
         {
             return await _dbSet.AnyAsync(e => e.Id == id && !e.IsDeleted);
