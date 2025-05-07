@@ -1,0 +1,41 @@
+﻿@model OnlineRandevuSistemi.Business.DTOs.AppointmentDto
+
+@{
+    ViewData["Title"] = "Randevu Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Randevu Detayları</h2>
+
+<table class="table">
+    <tr>
+        <th>Hizmet</th>
+        <td>@Model.ServiceName</td>
+    </tr>
+    <tr>
+        <th>Çalışan</th>
+        <td>@Model.EmployeeName</td>
+    </tr>
+    <tr>
+        <th>Tarih</th>
+        <td>@Model.AppointmentDate.ToString("dd.MM.yyyy HH:mm")</td>
+    </tr>
+    <tr>
+        <th>Süre</th>
+        <td>@(Model.AppointmentEndTime - Model.AppointmentDate).TotalMinutes dakika</td>
+    </tr>
+    <tr>
+        <th>Fiyat</th>
+        <td>@Model.Price.ToString("C")</td>
+    </tr>
+    <tr>
+        <th>Durum</th>
+        <td>@Model.Status</td>
+    </tr>
+    <tr>
+        <th>Notlar</th>
+        <td>@Model.Notes</td>
+    </tr>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Geri Dön</a>

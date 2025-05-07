@@ -53,6 +53,7 @@ namespace OnlineRandevuSistemi.Business.Services
         public async Task<AppointmentDto> GetAppointmentByIdAsync(int id)
         {
             var appointment = await _appointmentRepository.TableNoTracking
+                .Where(a => !a.IsDeleted)
                 .Include(a => a.Employee)
                     .ThenInclude(e => e.User)
                 .Include(a => a.Customer)
@@ -65,14 +66,16 @@ namespace OnlineRandevuSistemi.Business.Services
 
 
         // OnlineRandevuSistemi.Business/Services/AppointmentService.cs - Kalan metotlar
-
         public async Task<IEnumerable<AppointmentDto>> GetAppointmentsByCustomerIdAsync(int customerId)
         {
             var appointments = await _appointmentRepository.TableNoTracking
+                
+                .Where(a => a.CustomerId == customerId && !a.IsDeleted)
                 .Include(a => a.Employee)
-                .Include(a => a.Service)
+                    .ThenInclude(e => e.User)
                 .Include(a => a.Customer)
-                .Where(a => a.CustomerId == customerId)
+                    .ThenInclude(c => c.User)
+                .Include(a => a.Service)
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<AppointmentDto>>(appointments);

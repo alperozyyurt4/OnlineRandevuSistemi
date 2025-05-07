@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<OnlineRandevuSistemi.Core.Entities.AppUser> SignInManager
+@inject UserManager<OnlineRandevuSistemi.Core.Entities.AppUser> UserManager
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -18,23 +21,45 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="Service" asp-action="Index">Hizmetler</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="Appointment" asp-action="Index">Randevular</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">Yönetim Paneli</a>
-                        </li>
+                    <ul class="navbar-nav">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                                </li>
+                            }
+
+                            if (User.IsInRole("Customer"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Customer" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Customer" asp-controller="Appointment" asp-action="Index">Randevularım</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Customer" asp-controller="Appointment" asp-action="Create">Randevu Al</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Customer" asp-controller="Customer" asp-action="Profile">Profilim</a>
+                                </li>
+                            }
+                        }
                     </ul>
+
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <ul class="navbar-nav ms-auto">
+                            <!-- SAĞA AL -->
+                            <li class="nav-item">
+                                <form asp-area="Identity" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Çıkış Yap</button>
+                                </form>
+                            </li>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>

@@ -1,0 +1,82 @@
+﻿@model OnlineRandevuSistemi.Web.ViewModels.AppointmentListViewModel
+@using OnlineRandevuSistemi.Core.Enums
+
+@{
+    ViewData["Title"] = "Randevularım";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Yaklaşan Randevularım</h2>
+@if (Model.UpcomingAppointments.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Hizmet</th>
+                <th>Çalışan</th>
+                <th>Tarih</th>
+                <th>Durum</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.UpcomingAppointments)
+            {
+                <tr>
+                    <td>@item.ServiceName</td>
+                    <td>@item.EmployeeName</td>
+                    <td>@item.AppointmentDate.ToString("g")</td>
+                    <td>@item.Status</td>
+                    <td>
+                        <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id">Detay</a>
+                        @if (item.Status == AppointmentStatus.Pending || item.Status == AppointmentStatus.Confirmed)
+                        {
+                            <form asp-action="Cancel" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Randevuyu iptal etmek istediğinize emin misiniz?');">
+                                    İptal Et
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Yaklaşan randevunuz bulunmamaktadır.</p>
+}
+
+<hr />
+
+<h2>Geçmiş Randevularım</h2>
+@if (Model.PastAppointments.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Hizmet</th>
+                <th>Çalışan</th>
+                <th>Tarih</th>
+                <th>Durum</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.PastAppointments)
+            {
+                <tr>
+                    <td>@item.ServiceName</td>
+                    <td>@item.EmployeeName</td>
+                    <td>@item.AppointmentDate.ToString("g")</td>
+                    <td>@item.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Geçmiş randevunuz bulunmamaktadır.</p>
+}

@@ -1,5 +1,44 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model OnlineRandevuSistemi.Web.ViewModels.CustomerAppointmentCreateViewModel
+
 @{
+    ViewData["Title"] = "Randevu Al";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Randevu Al</h2>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="ServiceId" class="form-label">Hizmet</label>
+        <select asp-for="ServiceId" asp-items="Model.Services" class="form-select">
+            <option value="">Seçiniz</option>
+        </select>
+        <span asp-validation-for="ServiceId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EmployeeId" class="form-label">Çalışan</label>
+        <select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select">
+            <option value="">Seçiniz</option>
+        </select>
+        <span asp-validation-for="EmployeeId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="AppointmentDate" class="form-label">Tarih ve Saat</label>
+        <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
+        <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Notes" class="form-label">Not</label>
+        <textarea asp-for="Notes" class="form-control"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Randevu Al</button>
+    <a asp-action="Index" class="btn btn-secondary">İptal</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }

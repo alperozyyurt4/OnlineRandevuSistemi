@@ -1,0 +1,24 @@
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace OnlineRandevuSistemi.Web.ViewModels
+{
+    public class CustomerAppointmentCreateViewModel
+    {
+        [Required]
+        public int ServiceId { get; set; }
+
+        [Required]
+        public int EmployeeId { get; set; }
+
+        [Required]
+        public DateTime AppointmentDate { get; set; }
+
+        public string Notes { get; set; }
+
+        public List<SelectListItem> Services { get; set; } = new();
+        public List<SelectListItem> Employees { get; set; } = new();
+    }
+}
