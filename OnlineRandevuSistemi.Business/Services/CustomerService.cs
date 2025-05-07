@@ -33,6 +33,7 @@ namespace OnlineRandevuSistemi.Business.Services
         public async Task<IEnumerable<CustomerDto>> GetAllCustomersAsync()
         {
             var customers = await _customerRepository.TableNoTracking
+                .Where(c => !c.IsDeleted)
                 .Include(c => c.User)
                 .ToListAsync();
 
@@ -64,18 +65,40 @@ namespace OnlineRandevuSistemi.Business.Services
             await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<CustomerDto>(customer);
         }
-
         public async Task<CustomerDto> UpdateCustomerAsync(CustomerDto customerDto)
         {
+            // Müşteriyi al
             var customer = await _customerRepository.GetByIdAsync(customerDto.Id);
             if (customer == null)
                 throw new Exception("Customer not found");
 
-            customer = _mapper.Map(customerDto, customer);
+            // Kullanıcıyı al
+            var user = await _userManager.FindByIdAsync(customer.UserId);
+            if (user == null)
+                throw new Exception("Associated user not found");
+
+            // AppUser (kullanıcı) bilgilerini güncelle
+            user.FirstName = customerDto.FirstName;
+            user.LastName = customerDto.LastName;
+            user.Email = customerDto.Email;
+            user.PhoneNumber = customerDto.PhoneNumber;
+            user.UpdatedDate = DateTime.Now;
+            user.Address = customerDto.Address;
+            user.DateOfBirth = customerDto.DateOfBirth;
+
+            var userUpdateResult = await _userManager.UpdateAsync(user);
+            if (!userUpdateResult.Succeeded)
+            {
+                throw new Exception("User update failed: " + string.Join(", ", userUpdateResult.Errors.Select(e => e.Description)));
+            }
+
+            // Customer tablosunu güncelle
+            customer.notes = customerDto.Notes;
             customer.UpdatedDate = DateTime.Now;
 
             await _customerRepository.UpdateAsync(customer);
             await _unitOfWork.SaveChangesAsync();
+
             return _mapper.Map<CustomerDto>(customer);
         }
 

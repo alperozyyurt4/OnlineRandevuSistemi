@@ -1,13 +1,15 @@
-﻿@model OnlineRandevuSistemi.Web.ViewModels.CustomerCreateViewModel
+﻿@model OnlineRandevuSistemi.Web.ViewModels.CustomerEditViewModel
 
 @{
-    ViewData["Title"] = "Yeni Müşteri Oluştur";
+    ViewData["Title"] = "Müşteri Güncelle";
     Layout = "_Layout";
 }
 
-<h2>Yeni Müşteri Oluştur</h2>
+<h2>Müşteri Güncelle</h2>
 
-<form asp-action="Create" method="post">
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
     <div class="mb-3">
         <label asp-for="FirstName" class="form-label"></label>
         <input asp-for="FirstName" class="form-control" />
@@ -33,12 +35,6 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="Password" class="form-label"></label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
         <label asp-for="Address" class="form-label"></label>
         <textarea asp-for="Address" class="form-control"></textarea>
         <span asp-validation-for="Address" class="text-danger"></span>
@@ -46,11 +42,17 @@
 
     <div class="mb-3">
         <label asp-for="DateOfBirth" class="form-label"></label>
-        <input asp-for="DateOfBirth" type="date" class="form-control" />
+        <input asp-for="DateOfBirth" class="form-control" type="date" />
         <span asp-validation-for="DateOfBirth" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Kaydet</button>
+    <div class="mb-3">
+        <label asp-for="Notes" class="form-label"></label>
+        <textarea asp-for="Notes" class="form-control"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Güncelle</button>
     <a asp-action="Index" class="btn btn-secondary">İptal</a>
 </form>
 

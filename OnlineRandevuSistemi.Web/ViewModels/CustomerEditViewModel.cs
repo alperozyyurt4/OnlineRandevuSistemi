@@ -2,8 +2,10 @@
 
 namespace OnlineRandevuSistemi.Web.ViewModels
 {
-    public class CustomerCreateViewModel
+    public class CustomerEditViewModel
     {
+        public int Id { get; set; }
+
         [Required]
         [Display(Name = "Ad")]
         public string FirstName { get; set; }
@@ -14,25 +16,21 @@ namespace OnlineRandevuSistemi.Web.ViewModels
 
         [Required]
         [EmailAddress]
-        [Display(Name = "E-posta")]
+        [Display(Name = "E-Posta")]
         public string Email { get; set; }
 
         [Required]
         [Display(Name = "Telefon")]
         public string PhoneNumber { get; set; }
 
-        [Required]
-        [DataType(DataType.Password)]
-        [Display(Name = "Parola")]
-        public string Password { get; set; }
-
         [Display(Name = "Adres")]
         public string Address { get; set; }
 
         [Display(Name = "Doğum Tarihi")]
         [DataType(DataType.Date)]
-        public DateTime? DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; set; }
 
-        public string? ProfilePicture { get; set; }
+        [Display(Name = "Notlar")]
+        public string Notes { get; set; }
     }
 }

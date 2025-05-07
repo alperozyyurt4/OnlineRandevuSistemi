@@ -21,12 +21,14 @@
     </div>
 
     <div class="col-md-4">
-        <div class="card text-white bg-success shadow">
-            <div class="card-header text-center fw-semibold">Toplam Müşteri</div>
-            <div class="card-body text-center">
-                <h3 class="card-title">@Model.TotalCustomers</h3>
+        <a asp-area="Admin" asp-controller="Customer" asp-action="Index" class="text-decoration-none">
+            <div class="card text-white bg-success shadow">
+                <div class="card-header text-center fw-semibold">Toplam Müşteri</div>
+                <div class="card-body text-center">
+                    <h3 class="card-title">@Model.TotalCustomers</h3>
+                </div>
             </div>
-        </div>
+        </a>
     </div>
 
     <div class="col-md-4">
