@@ -1,0 +1,42 @@
+﻿@model OnlineRandevuSistemi.Web.ViewModels.EmployeeWorkingHourViewModel
+
+@{
+    ViewData["Title"] = "Çalışma Saatini Düzenle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Çalışma Saatini Düzenle</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="EmployeeId" />
+
+    <div class="mb-3">
+        <label asp-for="DayOfWeek" class="form-label">Gün</label>
+        <input asp-for="DayOfWeek" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="StartTime" class="form-label">Başlangıç Saati</label>
+        <input asp-for="StartTime" class="form-control" type="time" />
+        <span asp-validation-for="StartTime" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EndTime" class="form-label">Bitiş Saati</label>
+        <input asp-for="EndTime" class="form-control" type="time" />
+        <span asp-validation-for="EndTime" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsWorkingDay" class="form-check-input" />
+        <label asp-for="IsWorkingDay" class="form-check-label">O gün çalışıyor mu?</label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Kaydet</button>
+    <a asp-action="Index" asp-route-employeeId="@Model.EmployeeId" class="btn btn-secondary">İptal</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

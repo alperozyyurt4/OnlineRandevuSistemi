@@ -1,0 +1,39 @@
+﻿@model IEnumerable<OnlineRandevuSistemi.Business.DTOs.AppointmentDto>
+
+@{
+    ViewData["Title"] = "Geçmiş Randevular";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Geçmiş Randevular</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Geçmişe ait randevu bulunmamaktadır.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Hizmet</th>
+                <th>Müşteri</th>
+                <th>Tarih</th>
+                <th>Durum</th>
+                <th>Notlar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ServiceName</td>
+                    <td>@item.CustomerName</td>
+                    <td>@item.AppointmentDate.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@item.Status</td>
+                    <td>@item.Notes</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

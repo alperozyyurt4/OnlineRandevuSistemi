@@ -1,0 +1,31 @@
+﻿@model IEnumerable<OnlineRandevuSistemi.Business.DTOs.AppointmentDto>
+@{
+    ViewData["Title"] = "Yaklaşan Randevular";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Yaklaşan Randevular</h2>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Hizmet</th>
+            <th>Müşteri</th>
+            <th>Tarih</th>
+            <th>Durum</th>
+            <th>Fiyat</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.ServiceName</td>
+                <td>@a.CustomerName</td>
+                <td>@a.AppointmentDate.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@a.Status</td>
+                <td>@a.Price.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>

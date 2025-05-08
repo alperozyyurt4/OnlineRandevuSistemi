@@ -36,9 +36,10 @@ namespace OnlineRandevuSistemi.Business.Mapping
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.User.Address))
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.User.DateOfBirth))
-                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.User.PhoneNumber));
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.User.PhoneNumber))
+                .ForMember(dest => dest.WorkingHours, opt => opt.MapFrom(src => src.WorkingHours));
             CreateMap<EmployeeDto, Employee>();
-
+            CreateMap<WorkingHour, EmployeeWorkingHourDto>().ReverseMap();
             // Customer
             CreateMap<Customer, CustomerDto>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User.FirstName))

@@ -1,0 +1,27 @@
+﻿@model OnlineRandevuSistemi.Business.DTOs.AppointmentDto
+@{
+    ViewData["Title"] = "Randevu Detayı";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Randevu Detayı</h2>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@Model.ServiceName</h5>
+        <p><strong>Müşteri:</strong> @Model.CustomerName</p>
+        <p><strong>Tarih:</strong> @Model.AppointmentDate.ToString("f")</p>
+        <p><strong>Durum:</strong> @Model.Status</p>
+        <p><strong>Notlar:</strong> @Model.Notes</p>
+        <p><strong>Ücret:</strong> @Model.Price.ToString("C")</p>
+
+        @if (Model.Status == OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Confirmed)
+        {
+            <form asp-action="UpdateStatus" method="post">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="status" value="2" /> <!-- Completed -->
+                <button type="submit" class="btn btn-success">Tamamlandı Olarak İşaretle</button>
+            </form>
+        }
+    </div>
+</div>

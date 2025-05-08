@@ -1,5 +1,38 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model OnlineRandevuSistemi.Web.ViewModels.EmployeeDashboardViewModel
+
 @{
+    ViewData["Title"] = "Çalışan Paneli";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<h2>Çalışan Paneli</h2>
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Toplam Randevu</div>
+            <div class="card-body">
+                <h5 class="card-title">@Model.TotalAppointments</h5>
+                <a class="btn btn-light btn-sm mt-2" asp-area="Employee" asp-controller="Appointment" asp-action="Index">Görüntüle</a>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-header">Yaklaşan Randevu</div>
+            <div class="card-body">
+                <h5 class="card-title">@Model.UpcomingAppointments</h5>
+                <a class="btn btn-light btn-sm mt-2" asp-area="Employee" asp-controller="Appointment" asp-action="Upcoming">Görüntüle</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-secondary mb-3">
+            <div class="card-header">Geçmiş Randevu</div>
+            <div class="card-body">
+                <h5 class="card-title">@Model.PastAppointments</h5>
+                <a class="btn btn-light btn-sm mt-2" asp-area="Employee" asp-controller="Appointment" asp-action="Past">Görüntüle</a>
+            </div>
+        </div>
+    </div>
+</div>

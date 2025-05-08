@@ -71,6 +71,12 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CustomerAppointmentCreateViewModel model)
         {
+            if (model.AppointmentDate < DateTime.Now)
+            {
+                ModelState.AddModelError("Appointment Date", "Geçmiş bir tarih seçilemez");
+
+            }
+
             if (!ModelState.IsValid)
             {
                 model.Services = (await _serviceService.GetAllServicesAsync())
@@ -85,12 +91,14 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
             var user = await _userManager.GetUserAsync(User);
             var customer = await _customerService.GetCustomerByUserIdAsync(user.Id);
 
+            var appointmentDate = DateTime.Parse($"{model.AppointmentDate:yyyy-MM-dd} {model.SelectedTime}");
+
             var dto = new AppointmentCreateDto
             {
                 ServiceId = model.ServiceId,
                 EmployeeId = model.EmployeeId,
                 CustomerId = customer.Id,
-                AppointmentDate = model.AppointmentDate,
+                AppointmentDate = appointmentDate,
                 Notes = model.Notes
             };
 
@@ -126,6 +134,47 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
 
             await _appointmentService.UpdateAppointmentStatusAsync(id, AppointmentStatus.Cancelled);
             return RedirectToAction(nameof(Index));
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableHours(int employeeId, DateTime appointmentDate)
+        {
+            var employee = await _employeeService.GetEmployeeByIdAsync(employeeId);
+            if (employee == null)
+                return Json(new List<string>());
+
+            var workingHours = employee.WorkingHours
+                .FirstOrDefault(w => w.DayOfWeek == appointmentDate.DayOfWeek && w.IsWorkingDay);
+
+            if (workingHours == null)
+                return Json(new List<string>());
+
+            var start = workingHours.StartTime;
+            var end = workingHours.EndTime;
+
+            var service = await _serviceService.GetServiceByIdAsync(employee.ServiceIds.FirstOrDefault());
+            int duration = service?.DurationMinutes ?? 30;
+
+            var appointments = await _appointmentService.GetAppointmentsByEmployeeIdAsync(employeeId);
+            var occupiedSlots = appointments
+                .Where(a => a.AppointmentDate.Date == appointmentDate.Date)
+                .Select(a => new
+                {
+                    Start = a.AppointmentDate.TimeOfDay,
+                    End = a.AppointmentEndTime.TimeOfDay
+                }).ToList();
+
+            var availableHours = new List<string>();
+            for (var time = start; time.Add(TimeSpan.FromMinutes(duration)) <= end; time = time.Add(TimeSpan.FromMinutes(duration)))
+            {
+                var endTime = time.Add(TimeSpan.FromMinutes(duration));
+                bool isFree = !occupiedSlots.Any(a =>
+                    (time >= a.Start && time < a.End) || (endTime > a.Start && endTime <= a.End));
+
+                if (isFree)
+                    availableHours.Add(time.ToString(@"hh\:mm"));
+            }
+
+            return Json(availableHours);
         }
     }
 }

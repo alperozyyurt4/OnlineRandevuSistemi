@@ -16,6 +16,9 @@ namespace OnlineRandevuSistemi.Web.ViewModels
         [Required]
         public DateTime AppointmentDate { get; set; }
 
+        [Required]
+        public string SelectedTime { get; set; } // Saat string olarak gelecek, örn: "10:00"
+
         public string Notes { get; set; }
 
         public List<SelectListItem> Services { get; set; } = new();

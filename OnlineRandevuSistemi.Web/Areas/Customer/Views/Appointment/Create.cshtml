@@ -18,16 +18,24 @@
 
     <div class="mb-3">
         <label asp-for="EmployeeId" class="form-label">Çalışan</label>
-        <select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select">
+        <select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select" id="EmployeeId">
             <option value="">Seçiniz</option>
         </select>
         <span asp-validation-for="EmployeeId" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="AppointmentDate" class="form-label">Tarih ve Saat</label>
-        <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
+        <label asp-for="AppointmentDate" class="form-label">Tarih</label>
+        <input asp-for="AppointmentDate" class="form-control" type="date" id="AppointmentDate" min="@DateTime.Now.ToString("yyy-MM-ddTHH:mm")"/>
         <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Saat</label>
+        <select asp-for="SelectedTime" class="form-select" id="AvailableTime">
+            <option value="">Önce çalışan ve tarih seçiniz</option>
+        </select>
+        <span asp-validation-for="SelectedTime" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
@@ -41,4 +49,26 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#EmployeeId, #AppointmentDate').on('change', function () {
+                var employeeId = $('#EmployeeId').val();
+                var date = $('#AppointmentDate').val();
+
+                if (employeeId && date) {
+                    $.get('/Customer/Appointment/GetAvailableHours', { employeeId, appointmentDate: date }, function (data) {
+                        var dropdown = $('#AvailableTime');
+                        dropdown.empty();
+                        if (data.length === 0) {
+                            dropdown.append('<option value="">Müsait saat yok</option>');
+                        } else {
+                            $.each(data, function (i, hour) {
+                                dropdown.append(`<option value="${hour}">${hour}</option>`);
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }

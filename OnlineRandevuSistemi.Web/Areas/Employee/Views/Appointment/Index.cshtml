@@ -1,0 +1,40 @@
+﻿@model IEnumerable<OnlineRandevuSistemi.Business.DTOs.AppointmentDto>
+@{
+    ViewData["Title"] = "Tüm Randevularım";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Bugünkü Randevular</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">Bugün için herhangi bir randevunuz bulunmuyor.</div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Müşteri</th>
+                <th>Hizmet</th>
+                <th>Saat</th>
+                <th>Durum</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.CustomerName</td>
+                    <td>@item.ServiceName</td>
+                    <td>@item.AppointmentDate.ToString("dd.MM.yyy HH:mm")</td>
+                    <td>@item.Status</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detay</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

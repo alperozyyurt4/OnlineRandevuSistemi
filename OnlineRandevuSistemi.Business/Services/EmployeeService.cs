@@ -19,19 +19,24 @@ namespace OnlineRandevuSistemi.Business.Services
         private readonly IRepository<Service> _serviceRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IRepository<WorkingHour> _workingHourRepository;
 
         public EmployeeService(
             IRepository<Employee> employeeRepository,
             IRepository<EntityEmployeeService> employeeServiceRepository,
             IRepository<Service> serviceRepository,
             IUnitOfWork unitOfWork,
-            IMapper mapper)
+            IMapper mapper,
+            IRepository<WorkingHour> workingHourRepository
+
+            )
         {
             _employeeRepository = employeeRepository;
             _employeeServiceRepository = employeeServiceRepository;
             _serviceRepository = serviceRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _workingHourRepository = workingHourRepository;
         }
 
         public async Task<IEnumerable<EmployeeDto>> GetAllEmployeesAsync()
@@ -50,6 +55,7 @@ namespace OnlineRandevuSistemi.Business.Services
             var employee = await _employeeRepository.TableNoTracking
                 .Include(e => e.User)
                 .Include(e => e.EmployeeServices)
+                .Include(e => e.WorkingHours)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             return _mapper.Map<EmployeeDto>(employee);
@@ -80,6 +86,22 @@ namespace OnlineRandevuSistemi.Business.Services
         {
             var employee = _mapper.Map<Employee>(employeeDto);
             await _employeeRepository.AddAsync(employee);
+            await _unitOfWork.SaveChangesAsync();
+            foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
+            {
+                if (day == DayOfWeek.Saturday || day == DayOfWeek.Sunday) continue;
+
+                var workingHour = new WorkingHour
+                {
+                    EmployeeId = employee.Id,
+                    DayOfWeek = day,
+                    StartTime = new TimeSpan(9, 0, 0),
+                    EndTime = new TimeSpan(17, 0, 0),
+                    IsWorkingDay = true,
+                    CreatedDate = DateTime.Now,
+                };
+                await _workingHourRepository.AddAsync(workingHour);
+            }
             await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<EmployeeDto>(employee);
         }

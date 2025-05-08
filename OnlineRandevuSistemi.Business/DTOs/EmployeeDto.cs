@@ -22,6 +22,7 @@ namespace OnlineRandevuSistemi.Business.DTOs
         public string? ProfilePicture { get; set; }
         public bool IsAvailable { get; set; }
         public List<int> ServiceIds { get; set; } = new List<int>();
+        public List<EmployeeWorkingHourDto> WorkingHours { get; set; } = new();  // DTO olarak
 
     }
 }

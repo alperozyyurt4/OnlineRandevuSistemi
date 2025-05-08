@@ -1,0 +1,30 @@
+﻿@model OnlineRandevuSistemi.Web.ViewModels.EmployeeAppointmentStatusViewModel
+@Html.ValidationSummary(false, "", new { @class = "text-danger" })
+@{
+    ViewData["Title"] = "Randevu Durumunu Güncelle";
+    Layout = "_Layout";
+}
+
+<h2>Randevu Durumunu Güncelle</h2>
+
+<form asp-action="EditStatus" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="CurrentStatus" class="form-label"></label>
+        <input asp-for="CurrentStatus" class="form-control" disabled />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="NewStatus" class="form-label"></label>
+        <select asp-for="NewStatus" asp-items="ViewBag.StatusOptions" class="form-select"></select>
+        <span asp-validation-for="NewStatus" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Güncelle</button>
+    <a asp-action="Index" class="btn btn-secondary">İptal</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

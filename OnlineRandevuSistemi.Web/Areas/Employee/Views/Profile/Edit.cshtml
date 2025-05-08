@@ -1,0 +1,66 @@
+﻿@model OnlineRandevuSistemi.Web.ViewModels.EmployeeProfileEditViewModel
+
+@{
+    ViewData["Title"] = "Profil Güncelle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Profil Güncelle</h2>
+
+<form asp-action="Edit" method="post">
+    <div class="mb-3">
+        <label asp-for="FirstName" class="form-label"></label>
+        <input asp-for="FirstName" class="form-control" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LastName" class="form-label"></label>
+        <input asp-for="LastName" class="form-control" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PhoneNumber" class="form-label"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Address" class="form-label"></label>
+        <textarea asp-for="Address" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DateOfBirth" class="form-label"></label>
+        <input asp-for="DateOfBirth" class="form-control" type="date" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Position" class="form-label"></label>
+        <input asp-for="Position" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Biography" class="form-label"></label>
+        <textarea asp-for="Biography" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="HourlyDate" class="form-label"></label>
+        <input asp-for="HourlyDate" class="form-control" />
+    </div>
+
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="UserId" />
+
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

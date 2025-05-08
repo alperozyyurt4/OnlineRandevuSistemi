@@ -84,9 +84,12 @@ namespace OnlineRandevuSistemi.Business.Services
         public async Task<IEnumerable<AppointmentDto>> GetAppointmentsByEmployeeIdAsync(int employeeId)
         {
             var appointments = await _appointmentRepository.TableNoTracking
+                .Where(a => a.EmployeeId == employeeId && !a.IsDeleted)
                 .Include(a => a.Employee)
+                    .ThenInclude (e => e.User)
                 .Include(a => a.Service)
                 .Include(a => a.Customer)
+                    .ThenInclude(c => c.User)
                 .Where(a => a.EmployeeId == employeeId)
                 .ToListAsync();
 
@@ -162,6 +165,9 @@ namespace OnlineRandevuSistemi.Business.Services
             var appointment = await _appointmentRepository.GetByIdAsync(id);
             if (appointment == null)
                 return false;
+
+            if (status == AppointmentStatus.Completed && appointment.AppointmentDate > DateTime.Now)
+                throw new Exception("Randevu tarihi henüz gelmediği için tamamlandı olarak işaretlenemez");
 
             appointment.Status = status;
             appointment.UpdatedDate = DateTime.Now;

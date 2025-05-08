@@ -46,6 +46,27 @@
                                     <a class="nav-link text-dark" asp-area="Customer" asp-controller="Customer" asp-action="Profile">Profilim</a>
                                 </li>
                             }
+                         
+                                if (User.IsInRole("Employee"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="Employee" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="Employee" asp-controller="Appointment" asp-action="Index">Randevularım</a>
+                                    </li>
+                                    
+                                    <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Employee" asp-controller="Appointment" asp-action="Upcoming">Yaklaşan Randevular</a>
+                                    </li>
+                                    <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Employee" asp-controller="Appointment" asp-action="Past">Geçmiş Randevular</a>
+                                    </li>
+                                    <li>
+                                    <a class="nav-link text-dark" asp-area="Employee" asp-controller="Profile" asp-action="Edit">Profilim</a>
+                                    </li>
+                                }
+                            
                         }
                     </ul>
 

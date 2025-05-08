@@ -1,0 +1,35 @@
+﻿@model IEnumerable<OnlineRandevuSistemi.Business.DTOs.EmployeeWorkingHourDto>
+@{
+    ViewData["Title"] = "Çalışma Saatleri";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Çalışma Saatleri</h2>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Gün</th>
+            <th>Başlangıç</th>
+            <th>Bitiş</th>
+            <th>Aktif mi?</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var hour in Model)
+        {
+            <tr>
+                <td>@hour.DayOfWeek</td>
+                <td>@hour.StartTime</td>
+                <td>@hour.EndTime</td>
+                <td>@(hour.IsWorkingDay ? "Evet" : "Hayır")</td>
+                <td>
+                    <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@hour.Id">Düzenle</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a class="btn btn-secondary" asp-area="Admin" asp-controller="Employee" asp-action="Index">← Geri</a>
