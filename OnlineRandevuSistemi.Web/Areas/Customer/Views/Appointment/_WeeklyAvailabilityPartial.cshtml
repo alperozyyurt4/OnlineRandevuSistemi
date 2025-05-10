@@ -1,0 +1,201 @@
+﻿@model OnlineRandevuSistemi.Web.ViewModels.WeeklyAvailabilityViewModel
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Tarih ve Saat Seçimi</h5>
+            <div>
+                <button type="button" id="prevWeek" class="btn btn-sm btn-light me-2">
+                    <i class="bi bi-chevron-left"></i> Önceki
+                </button>
+                <button type="button" id="nextWeek" class="btn btn-sm btn-light">
+                    Sonraki <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <!-- Tarih seçim bölümü -->
+        <div class="date-selector py-2 border-bottom">
+            <div class="d-flex overflow-auto py-2">
+                @foreach (var day in Model.Days)
+                {
+                    var isToday = day.Date.Date == DateTime.Today;
+                    var btnClass = isToday ? "btn-primary" : "btn-outline-primary";
+
+                    <div class="date-item px-2">
+                        <button type="button" class="btn @btnClass date-selector-btn"
+                                data-date="@day.Date.ToString("yyyy-MM-dd")">
+                            <div class="day-name">@day.Date.ToString("ddd")</div>
+                            <div class="day-number fw-bold">@day.Date.ToString("dd")</div>
+                            <div class="month-name small">@day.Date.ToString("MMM")</div>
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Saat seçim bölümü -->
+        <div class="time-slots p-3">
+            <h6 id="selected-date-display" class="text-center mb-3">
+                @(Model.Days.FirstOrDefault()?.Date.ToString("d MMMM yyyy, dddd") ?? "Tarih seçiniz")
+            </h6>
+
+            <div class="row row-cols-2 row-cols-md-4 g-3" id="time-slots-container">
+                @{
+                    var firstDay = Model.Days.FirstOrDefault();
+                    if (firstDay != null)
+                    {
+                        foreach (var slot in firstDay.TimeSlots.OrderBy(ts => ts.Time))
+                        {
+                            var timeStr = slot.Time.ToString(@"hh\:mm");
+                            if (slot.IsAvailable)
+                            {
+                                <div class="col">
+                                    <button type="button" class="btn btn-outline-success w-100 timeslot"
+                                            data-time="@timeStr">
+                                        <i class="bi bi-clock me-1"></i> @timeStr
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col">
+                                    <button type="button" class="btn btn-outline-secondary w-100" disabled>
+                                        <i class="bi bi-x-circle me-1"></i> @timeStr
+                                    </button>
+                                </div>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-center text-muted">Bu tarihte uygun saat bulunmamaktadır.</p>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .date-selector {
+        scroll-behavior: smooth;
+    }
+
+        .date-selector .date-item {
+            min-width: 80px;
+        }
+
+    .date-selector-btn {
+        width: 100%;
+        padding: 8px 0;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+        .date-selector-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .date-selector-btn.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+    .time-slots {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .timeslot.selected {
+        background-color: #198754;
+        color: white;
+    }
+
+    /* Mobil görünüm için scroll çubuğu stilini gizle ama işlevi kalsın */
+    .date-selector::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .date-selector::-webkit-scrollbar-thumb {
+        background-color: #dee2e6;
+        border-radius: 10px;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        // İlk gün seçili olarak başlat
+        $('.date-selector-btn').first().addClass('active');
+
+        // Tarih seçimi yaptığında
+        $('.date-selector-btn').on('click', function () {
+            $('.date-selector-btn').removeClass('active');
+            $(this).addClass('active');
+
+            const selectedDate = $(this).data('date');
+            loadTimeSlotsForDate(selectedDate);
+        });
+
+        // Seçilen tarihe göre saatleri yükle
+        function loadTimeSlotsForDate(date) {
+            const employeeId = $('#EmployeeId').val();
+
+            if (employeeId && date) {
+                $('#selected-date-display').html('<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Yükleniyor...');
+
+                $.ajax({
+                    url: '/Customer/Appointment/GetTimeSlotsForDate',
+                    data: { employeeId: employeeId, selectedDate: date },
+                    type: 'GET',
+                    success: function (data) {
+                        $('#time-slots-container').html(data);
+                        $('#selected-date-display').text(new Date(date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' }));
+                    },
+                    error: function () {
+                        $('#time-slots-container').html("<p class='text-danger text-center'>Uygun saatler yüklenirken bir hata oluştu.</p>");
+                        $('#selected-date-display').text('Hata oluştu');
+                    }
+                });
+            }
+        }
+
+        // Önceki hafta ve sonraki hafta butonları için
+        $('#prevWeek, #nextWeek').on('click', function () {
+            const direction = $(this).attr('id') === 'prevWeek' ? -7 : 7;
+            const employeeId = $('#EmployeeId').val();
+            const currentFirstDate = $('.date-selector-btn').first().data('date');
+
+            if (employeeId && currentFirstDate) {
+                const newStartDate = new Date(currentFirstDate);
+                newStartDate.setDate(newStartDate.getDate() + direction);
+
+                // Tüm içeriği yenile
+                $.ajax({
+                    url: '/Customer/Appointment/GetWeeklyAvailability',
+                    data: {
+                        employeeId: employeeId,
+                        selectedDate: newStartDate.toISOString().split('T')[0]
+                    },
+                    type: 'GET',
+                    success: function (html) {
+                        $('#availabilityTable').html(html);
+                    },
+                    error: function () {
+                        $('#availabilityTable').html("<p class='text-danger'>Uygun saatler yüklenirken bir hata oluştu.</p>");
+                    }
+                });
+            }
+        });
+
+        // Saat seçimi yaptığında
+        $(document).on('click', '.timeslot', function () {
+            $('.timeslot').removeClass('selected');
+            $(this).addClass('selected');
+
+            const selectedTime = $(this).data('time');
+            $('#SelectedTime').val(selectedTime);
+        });
+    });
+</script>

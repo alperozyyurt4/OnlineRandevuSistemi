@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 
 namespace OnlineRandevuSistemi.Business.Services
 {
@@ -232,6 +233,51 @@ namespace OnlineRandevuSistemi.Business.Services
             appointment.ReminderSent = true;
             await _appointmentRepository.UpdateAsync(appointment);
             await _unitOfWork.SaveChangesAsync();
+        }
+        public async Task<List<DailySlotDto>> GetWeeklyAvailabilityAsync(int employeeId, DateTime startDate, DateTime endDate)
+        {
+            var employee = await _employeeRepository.TableNoTracking
+                .Include(e => e.WorkingHours)
+                .FirstOrDefaultAsync(e => e.Id == employeeId);
+
+            var appointments = await _appointmentRepository.TableNoTracking
+                .Where(a => a.EmployeeId == employeeId && a.AppointmentDate.Date >= startDate && a.AppointmentDate.Date <= endDate)
+                .ToListAsync();
+
+            var result = new List<DailySlotDto>();
+
+            for (var day = startDate; day <= endDate; day = day.AddDays(1))
+            {
+                var wh = employee.WorkingHours.FirstOrDefault(w => w.DayOfWeek == day.DayOfWeek && w.IsWorkingDay);
+                if (wh == null) continue;
+
+                var slots = new List<TimeSlotDto>();
+                for (var time = wh.StartTime; time < wh.EndTime; time += TimeSpan.FromMinutes(30))
+                {
+                    var dateTime = day.Date + time;
+                    bool isBusy = appointments.Any(a =>
+                        dateTime >= a.AppointmentDate && dateTime < a.AppointmentEndTime);
+
+                    slots.Add(new TimeSlotDto
+                    {
+                        Time = time,
+                        IsAvailable = !isBusy
+                    });
+                }
+
+                result.Add(new DailySlotDto
+                {
+                    Date = day,
+                    TimeSlots = slots
+                });
+            }
+
+            return result;
+        }
+        public async Task<DailySlotDto> GetDailyAvailabilityAsync(int employeeId, DateTime date)
+        {
+            var weekly = await GetWeeklyAvailabilityAsync(employeeId, date, date);
+            return weekly.FirstOrDefault(); // Sadece tek bir gün getiriyoruz
         }
     }
 }

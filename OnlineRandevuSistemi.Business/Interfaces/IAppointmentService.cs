@@ -20,5 +20,7 @@ namespace OnlineRandevuSistemi.Business.Interfaces
         Task<bool> UpdateAppointmentStatusAsync(int id, AppointmentStatus status);
         Task<bool> CheckEmployeeAvailabilityAsync(int employeeId, DateTime appointmentDate, int durationMinutes);
         Task SendAppointmentReminderAsync(int appointmentId);
+        Task<List<DailySlotDto>> GetWeeklyAvailabilityAsync(int employeeId, DateTime startDate, DateTime endDate);
+        Task<DailySlotDto> GetDailyAvailabilityAsync(int employeeId, DateTime date);
     }
 }

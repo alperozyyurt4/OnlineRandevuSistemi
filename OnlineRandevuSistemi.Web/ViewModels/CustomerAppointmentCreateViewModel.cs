@@ -21,6 +21,8 @@ namespace OnlineRandevuSistemi.Web.ViewModels
 
         public string Notes { get; set; }
 
+        public WeeklyAvailabilityViewModel? Availability { get; set; }
+
         public List<SelectListItem> Services { get; set; } = new();
         public List<SelectListItem> Employees { get; set; } = new();
     }

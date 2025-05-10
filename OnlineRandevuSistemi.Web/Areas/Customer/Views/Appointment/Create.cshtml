@@ -1,72 +1,149 @@
 ﻿@model OnlineRandevuSistemi.Web.ViewModels.CustomerAppointmentCreateViewModel
-
 @{
     ViewData["Title"] = "Randevu Al";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Yeni Randevu Oluştur</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="ServiceId" class="form-label">Hizmet</label>
+                        <select asp-for="ServiceId" asp-items="Model.Services" class="form-select">
+                            <option value="">Seçiniz</option>
+                        </select>
+                        <span asp-validation-for="ServiceId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="EmployeeId" class="form-label">Çalışan</label>
+                        <select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select" id="EmployeeId">
+                            <option value="">Seçiniz</option>
+                        </select>
+                        <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                    </div>
+                </div>
 
-<h2>Randevu Al</h2>
+                <!-- Takvim ve saat kısmı -->
+                <div class="mb-4">
+                    <label class="form-label">Tarih ve Saat Seçimi</label>
+                    <div id="availabilityTable" class="border rounded p-3">
+                        <p class="text-muted">Lütfen önce çalışan seçin. Takvim ve saatler otomatik yüklenecek.</p>
+                    </div>
+                    <input type="hidden" id="SelectedTime" name="SelectedTime" />
+                    <input type="hidden" id="AppointmentDate" name="AppointmentDate" />
+                    <span asp-validation-for="SelectedTime" class="text-danger"></span>
+                    <p class="fw-bold text-primary mt-2">Seçilen: <span id="selected-info">-</span></p>
+                </div>
 
-<form asp-action="Create" method="post">
-    <div class="mb-3">
-        <label asp-for="ServiceId" class="form-label">Hizmet</label>
-        <select asp-for="ServiceId" asp-items="Model.Services" class="form-select">
-            <option value="">Seçiniz</option>
-        </select>
-        <span asp-validation-for="ServiceId" class="text-danger"></span>
+                <!-- Not alanı -->
+                <div class="mb-4">
+                    <label asp-for="Notes" class="form-label">Not</label>
+                    <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Varsa ek bilgi girin..."></textarea>
+                </div>
+
+                <!-- Butonlar -->
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle me-1"></i> Geri
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i> Randevu Al
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="EmployeeId" class="form-label">Çalışan</label>
-        <select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select" id="EmployeeId">
-            <option value="">Seçiniz</option>
-        </select>
-        <span asp-validation-for="EmployeeId" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="AppointmentDate" class="form-label">Tarih</label>
-        <input asp-for="AppointmentDate" class="form-control" type="date" id="AppointmentDate" min="@DateTime.Now.ToString("yyy-MM-ddTHH:mm")"/>
-        <span asp-validation-for="AppointmentDate" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Saat</label>
-        <select asp-for="SelectedTime" class="form-select" id="AvailableTime">
-            <option value="">Önce çalışan ve tarih seçiniz</option>
-        </select>
-        <span asp-validation-for="SelectedTime" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Notes" class="form-label">Not</label>
-        <textarea asp-for="Notes" class="form-control"></textarea>
-    </div>
-
-    <button type="submit" class="btn btn-success">Randevu Al</button>
-    <a asp-action="Index" class="btn btn-secondary">İptal</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
         $(document).ready(function () {
-            $('#EmployeeId, #AppointmentDate').on('change', function () {
-                var employeeId = $('#EmployeeId').val();
-                var date = $('#AppointmentDate').val();
 
-                if (employeeId && date) {
-                    $.get('/Customer/Appointment/GetAvailableHours', { employeeId, appointmentDate: date }, function (data) {
-                        var dropdown = $('#AvailableTime');
-                        dropdown.empty();
-                        if (data.length === 0) {
-                            dropdown.append('<option value="">Müsait saat yok</option>');
-                        } else {
-                            $.each(data, function (i, hour) {
-                                dropdown.append(`<option value="${hour}">${hour}</option>`);
-                            });
+            function loadAvailability() {
+                var employeeId = $('#EmployeeId').val();
+                var today = new Date().toISOString().split('T')[0];
+                if (employeeId) {
+                    $.ajax({
+                        url: '/Customer/Appointment/GetWeeklyAvailability',
+                        data: { employeeId: employeeId, selectedDate: today },
+                        type: 'GET',
+                        success: function (html) {
+                            $('#availabilityTable').html(html);
+                            $('#SelectedTime').val("");
+                            $('#AppointmentDate').val("");
+                            $('#selected-info').text("-");
+                        },
+                        error: function () {
+                            $('#availabilityTable').html("<p class='text-danger'>Takvim yüklenirken bir hata oluştu.</p>");
                         }
                     });
+                }
+            }
+
+            $('#EmployeeId').on('change', loadAvailability);
+
+            // Gün seçimi
+            $(document).on('click', '.date-selector-btn', function () {
+                $('.date-selector-btn').removeClass('active');
+                $(this).addClass('active');
+
+                const selectedDate = $(this).data('date');
+                $('#AppointmentDate').val(selectedDate);
+                loadTimeSlotsForDate(selectedDate);
+            });
+
+            // Saat seçimi
+            $(document).on('click', '.timeslot', function () {
+                $('.timeslot').removeClass('selected');
+                $(this).addClass('selected');
+
+                const selectedTime = $(this).data('time');
+                const selectedDate = $('#AppointmentDate').val();
+
+                $('#SelectedTime').val(selectedTime);
+                $('#selected-info').text(`${selectedDate} - ${selectedTime}`);
+            });
+
+            // Haftalık gezinme
+            $('#availabilityTable').on('click', '#prevWeek, #nextWeek', function () {
+                const direction = $(this).attr('id') === 'prevWeek' ? -7 : 7;
+                const employeeId = $('#EmployeeId').val();
+                const currentFirstDate = $('.date-selector-btn').first().data('date');
+
+                if (employeeId && currentFirstDate) {
+                    const newStartDate = new Date(currentFirstDate);
+                    newStartDate.setDate(newStartDate.getDate() + direction);
+
+                    $.ajax({
+                        url: '/Customer/Appointment/GetWeeklyAvailability',
+                        data: {
+                            employeeId: employeeId,
+                            selectedDate: newStartDate.toISOString().split('T')[0]
+                        },
+                        type: 'GET',
+                        success: function (html) {
+                            $('#availabilityTable').html(html);
+                            $('#SelectedTime').val("");
+                            $('#AppointmentDate').val("");
+                            $('#selected-info').text("-");
+                        },
+                        error: function () {
+                            $('#availabilityTable').html("<p class='text-danger'>Hafta geçişi sırasında hata oluştu.</p>");
+                        }
+                    });
+                }
+            });
+
+            // Submit validation
+            $("form").on("submit", function () {
+                if (!$('#SelectedTime').val() || !$('#AppointmentDate').val()) {
+                    alert("Lütfen bir tarih ve saat seçiniz.");
+                    return false;
                 }
             });
         });

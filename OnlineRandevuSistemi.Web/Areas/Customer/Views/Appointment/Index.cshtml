@@ -6,77 +6,121 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Yaklaşan Randevularım</h2>
-@if (Model.UpcomingAppointments.Any())
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Hizmet</th>
-                <th>Çalışan</th>
-                <th>Tarih</th>
-                <th>Durum</th>
-                <th>İşlem</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.UpcomingAppointments)
+<div class="container py-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">📅 Yaklaşan Randevularım</h4>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.UpcomingAppointments.Any())
             {
-                <tr>
-                    <td>@item.ServiceName</td>
-                    <td>@item.EmployeeName</td>
-                    <td>@item.AppointmentDate.ToString("g")</td>
-                    <td>@item.Status</td>
-                    <td>
-                        <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id">Detay</a>
-                        @if (item.Status == AppointmentStatus.Pending || item.Status == AppointmentStatus.Confirmed)
-                        {
-                            <form asp-action="Cancel" asp-route-id="@item.Id" method="post" style="display:inline;">
-                                <button type="submit" class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Randevuyu iptal etmek istediğinize emin misiniz?');">
-                                    İptal Et
-                                </button>
-                            </form>
-                        }
-                    </td>
-                </tr>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Hizmet</th>
+                                <th>Çalışan</th>
+                                <th>Tarih</th>
+                                <th>Durum</th>
+                                <th class="text-end">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.UpcomingAppointments)
+                            {
+                                <tr>
+                                    <td>@item.ServiceName</td>
+                                    <td>@item.EmployeeName</td>
+                                    <td>@item.AppointmentDate.ToString("g")</td>
+                                    <td>
+                                        @switch (item.Status)
+                                        {
+                                            case AppointmentStatus.Confirmed:
+                                                <span class="badge bg-success">Onaylandı</span>
+                                                break;
+                                            case AppointmentStatus.Pending:
+                                                <span class="badge bg-warning text-dark">Bekliyor</span>
+                                                break;
+                                            case AppointmentStatus.Cancelled:
+                                                <span class="badge bg-danger">İptal</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@item.Id">
+                                            <i class="bi bi-eye"></i> Detay
+                                        </a>
+                                        @if (item.Status == AppointmentStatus.Pending || item.Status == AppointmentStatus.Confirmed)
+                                        {
+                                            <form asp-action="Cancel" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                        onclick="return confirm('Randevuyu iptal etmek istediğinize emin misiniz?');">
+                                                    <i class="bi bi-x-circle"></i> İptal Et
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>Yaklaşan randevunuz bulunmamaktadır.</p>
-}
-
-<hr />
-
-<h2>Geçmiş Randevularım</h2>
-@if (Model.PastAppointments.Any())
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Hizmet</th>
-                <th>Çalışan</th>
-                <th>Tarih</th>
-                <th>Durum</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.PastAppointments)
+            else
             {
-                <tr>
-                    <td>@item.ServiceName</td>
-                    <td>@item.EmployeeName</td>
-                    <td>@item.AppointmentDate.ToString("g")</td>
-                    <td>@item.Status</td>
-                </tr>
+                <div class="p-3 text-muted">Yaklaşan randevunuz bulunmamaktadır.</div>
             }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>Geçmiş randevunuz bulunmamaktadır.</p>
-}
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white">
+            <h4 class="mb-0">📜 Geçmiş Randevularım</h4>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.PastAppointments.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Hizmet</th>
+                                <th>Çalışan</th>
+                                <th>Tarih</th>
+                                <th>Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.PastAppointments)
+                            {
+                                <tr>
+                                    <td>@item.ServiceName</td>
+                                    <td>@item.EmployeeName</td>
+                                    <td>@item.AppointmentDate.ToString("g")</td>
+                                    <td>
+                                        @switch (item.Status)
+                                        {
+                                            case AppointmentStatus.Confirmed:
+                                                <span class="badge bg-success">Onaylandı</span>
+                                                break;
+                                            case AppointmentStatus.Pending:
+                                                <span class="badge bg-warning text-dark">Bekliyor</span>
+                                                break;
+                                            case AppointmentStatus.Cancelled:
+                                                <span class="badge bg-danger">İptal</span>
+                                                break;
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="p-3 text-muted">Geçmiş randevunuz bulunmamaktadır.</div>
+            }
+        </div>
+    </div>
+</div>

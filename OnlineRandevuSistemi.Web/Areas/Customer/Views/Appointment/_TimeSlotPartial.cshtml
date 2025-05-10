@@ -1,0 +1,24 @@
+﻿@using OnlineRandevuSistemi.Business.DTOs
+@model List<TimeSlotDto>
+
+@foreach (var slot in Model.OrderBy(s => s.Time))
+{
+    var timeStr = slot.Time.ToString(@"hh\:mm");
+    if (slot.IsAvailable)
+    {
+        <div class="col">
+            <button type="button" class="btn btn-outline-success w-100 timeslot"
+                    data-time="@timeStr">
+                <i class="bi bi-clock me-1"></i> @timeStr
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="col">
+            <button type="button" class="btn btn-outline-secondary w-100" disabled>
+                <i class="bi bi-x-circle me-1"></i> @timeStr
+            </button>
+        </div>
+    }
+}

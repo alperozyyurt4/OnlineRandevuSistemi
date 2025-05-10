@@ -5,37 +5,56 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Randevu Detayları</h2>
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">📋 Randevu Detayları</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-4">🛠️ Hizmet</dt>
+                <dd class="col-sm-8">@Model.ServiceName</dd>
 
-<table class="table">
-    <tr>
-        <th>Hizmet</th>
-        <td>@Model.ServiceName</td>
-    </tr>
-    <tr>
-        <th>Çalışan</th>
-        <td>@Model.EmployeeName</td>
-    </tr>
-    <tr>
-        <th>Tarih</th>
-        <td>@Model.AppointmentDate.ToString("dd.MM.yyyy HH:mm")</td>
-    </tr>
-    <tr>
-        <th>Süre</th>
-        <td>@(Model.AppointmentEndTime - Model.AppointmentDate).TotalMinutes dakika</td>
-    </tr>
-    <tr>
-        <th>Fiyat</th>
-        <td>@Model.Price.ToString("C")</td>
-    </tr>
-    <tr>
-        <th>Durum</th>
-        <td>@Model.Status</td>
-    </tr>
-    <tr>
-        <th>Notlar</th>
-        <td>@Model.Notes</td>
-    </tr>
-</table>
+                <dt class="col-sm-4">👤 Çalışan</dt>
+                <dd class="col-sm-8">@Model.EmployeeName</dd>
 
-<a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+                <dt class="col-sm-4">📅 Tarih</dt>
+                <dd class="col-sm-8">@Model.AppointmentDate.ToString("dd MMMM yyyy, HH:mm")</dd>
+
+                <dt class="col-sm-4">⏱️ Süre</dt>
+                <dd class="col-sm-8">@((Model.AppointmentEndTime - Model.AppointmentDate).TotalMinutes) dakika</dd>
+
+                <dt class="col-sm-4">💰 Fiyat</dt>
+                <dd class="col-sm-8">@Model.Price.ToString("C")</dd>
+
+                <dt class="col-sm-4">📌 Durum</dt>
+                <dd class="col-sm-8">
+                    @switch (Model.Status)
+                    {
+                        case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Confirmed:
+                            <span class="badge bg-success">Onaylandı</span>
+                            break;
+                        case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Pending:
+                            <span class="badge bg-warning text-dark">Bekliyor</span>
+                            break;
+                        case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Cancelled:
+                            <span class="badge bg-danger">İptal</span>
+                            break;
+                        default:
+                            <span class="badge bg-secondary">@Model.Status</span>
+                            break;
+                    }
+                </dd>
+
+                <dt class="col-sm-4">📝 Notlar</dt>
+                <dd class="col-sm-8">@(!string.IsNullOrWhiteSpace(Model.Notes) ? Model.Notes : "-")</dd>
+            </dl>
+
+            <div class="d-flex justify-content-end">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left-circle me-1"></i> Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

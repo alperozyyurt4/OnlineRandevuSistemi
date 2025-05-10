@@ -9,6 +9,7 @@ using OnlineRandevuSistemi.DataAccess;
 using OnlineRandevuSistemi.DataAccess.Context;
 using OnlineRandevuSistemi.DataAccess.Repositories;
 using AutoMapper;
+using OnlineRandevuSistemi.Web.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +38,7 @@ if (!builder.Environment.IsDevelopment())
 }
 
 // AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(typeof(MappingProfile), typeof(WebMappingProfile));
 
 // Repository & UnitOfWork
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

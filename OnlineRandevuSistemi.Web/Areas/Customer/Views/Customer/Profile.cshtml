@@ -5,47 +5,65 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Profilim</h2>
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">👤 Profil Bilgilerim</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Profile" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="FirstName" class="form-label">Ad</label>
+                        <input asp-for="FirstName" class="form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
 
-<form asp-action="Profile" method="post">
-    <div class="mb-3">
-        <label asp-for="FirstName" class="form-label"></label>
-        <input asp-for="FirstName" class="form-control" />
-        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LastName" class="form-label">Soyad</label>
+                        <input asp-for="LastName" class="form-control" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Email" class="form-label">E-posta</label>
+                        <input asp-for="Email" class="form-control" readonly />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PhoneNumber" class="form-label">Telefon</label>
+                        <input asp-for="PhoneNumber" class="form-control" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label">Adres</label>
+                    <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DateOfBirth" class="form-label">Doğum Tarihi</label>
+                        <input asp-for="DateOfBirth" class="form-control" type="date" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Notes" class="form-label">Notlar</label>
+                        <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <input type="hidden" asp-for="Id" />
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save me-1"></i> Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="LastName" class="form-label"></label>
-        <input asp-for="LastName" class="form-control" />
-        <span asp-validation-for="LastName" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" readonly />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="PhoneNumber" class="form-label"></label>
-        <input asp-for="PhoneNumber" class="form-control" />
-        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Address" class="form-label"></label>
-        <textarea asp-for="Address" class="form-control"></textarea>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="DateOfBirth" class="form-label"></label>
-        <input asp-for="DateOfBirth" class="form-control" type="date" />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Notes" class="form-label"></label>
-        <textarea asp-for="Notes" class="form-control"></textarea>
-    </div>
-    <input type="hidden" asp-for="Id" />
-
-    <button type="submit" class="btn btn-primary">Kaydet</button>
-</form>
+</div>

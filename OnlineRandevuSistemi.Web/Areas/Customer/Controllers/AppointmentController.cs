@@ -8,6 +8,7 @@ using OnlineRandevuSistemi.Business.DTOs;
 using OnlineRandevuSistemi.Business.Services;
 using OnlineRandevuSistemi.Web.ViewModels;
 using OnlineRandevuSistemi.Core.Enums;
+using AutoMapper;
 
 namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
 {
@@ -19,14 +20,16 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
         private readonly ICustomerService _customerService;
         private readonly IServiceService _serviceService;
         private readonly IEmployeeService _employeeService;
+        private readonly IMapper _mapper;
 
-        public AppointmentController(IAppointmentService appointmentService, UserManager<AppUser> userManager, ICustomerService customerService, IServiceService serviceService, IEmployeeService employeeService)
+        public AppointmentController(IAppointmentService appointmentService, UserManager<AppUser> userManager, ICustomerService customerService, IServiceService serviceService, IEmployeeService employeeService, IMapper mapper)
         {
             _appointmentService = appointmentService;
             _userManager = userManager;
             _customerService = customerService;
             _serviceService = serviceService;
             _employeeService = employeeService;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index()
@@ -62,7 +65,9 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
                 Employees = (await _employeeService.GetAllEmployeesAsync())
                     .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.FirstName + " " + e.LastName }).ToList(),
 
-                AppointmentDate = DateTime.Now.AddDays(1)
+                AppointmentDate = DateTime.Now.AddDays(1),
+                Availability = null
+
             };
 
             return View(model);
@@ -79,6 +84,13 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
 
             if (!ModelState.IsValid)
             {
+                foreach (var error in ModelState)
+                {
+                    foreach (var e in error.Value.Errors)
+                    {
+                        Console.WriteLine($"Hata: {error.Key} - {e.ErrorMessage}");
+                    }
+                }
                 model.Services = (await _serviceService.GetAllServicesAsync())
                     .Select(s => new SelectListItem { Value = s.Id.ToString(), Text = s.Name }).ToList();
 
@@ -176,5 +188,45 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
 
             return Json(availableHours);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetWeeklyAvailability(int employeeId, string selectedDate)
+        {
+            try
+            {
+                if (!DateTime.TryParse(selectedDate, out DateTime startDate))
+                    startDate = DateTime.Today;
+
+                var endDate = startDate.AddDays(6);
+
+                var dailyDtos = await _appointmentService.GetWeeklyAvailabilityAsync(employeeId, startDate, endDate);
+                var days = _mapper.Map<List<DailySlotViewModel>>(dailyDtos);
+
+                var viewModel = new WeeklyAvailabilityViewModel
+                {
+                    EmployeeId = employeeId,
+                    Days = days
+                };
+
+                return PartialView("_WeeklyAvailabilityPartial", viewModel);
+            }
+            catch (Exception ex)
+            {
+                // Hatayı loglayabilirsiniz
+                Console.WriteLine($"GetWeeklyAvailability Error: {ex.Message}");
+                return Content("<p class='text-danger'>Uygun saatler yüklenirken bir hata oluştu.</p>");
+            }
+        }
+        [HttpGet]
+public async Task<IActionResult> GetTimeSlotsForDate(int employeeId, string selectedDate)
+{
+    if (!DateTime.TryParse(selectedDate, out var date))
+        return Content("<p class='text-danger'>Geçersiz tarih</p>");
+
+    var dailyDto = await _appointmentService.GetDailyAvailabilityAsync(employeeId, date);
+    var slots = dailyDto?.TimeSlots ?? new List<TimeSlotDto>();
+
+    return PartialView("_TimeSlotPartial", slots);
+}
+
     }
 }
