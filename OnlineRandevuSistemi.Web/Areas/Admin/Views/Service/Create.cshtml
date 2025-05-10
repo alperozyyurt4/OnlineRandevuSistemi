@@ -5,34 +5,58 @@
     ViewData["Title"] = "Yeni Hizmet Ekle";
 }
 
-<h2>Yeni Hizmet Ekle</h2>
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">🛠️ Yeni Hizmet Ekle</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Hizmet Adı</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
 
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label">Açıklama</label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Price" class="form-label">Fiyat (₺)</label>
+                        <input asp-for="Price" class="form-control" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DurationMinutes" class="form-label">Süre (dk)</label>
+                        <input asp-for="DurationMinutes" class="form-control" />
+                        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ImageUrl" class="form-label">Görsel URL</label>
+                    <input asp-for="ImageUrl" class="form-control" placeholder="https://..." />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left-circle me-1"></i> İptal
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i> Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="form-group">
-        <label asp-for="Description"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Price"></label>
-        <input asp-for="Price" class="form-control" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="DurationMinutes"></label>
-        <input asp-for="DurationMinutes" class="form-control" />
-        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="ImageUrl"></label>
-        <input asp-for="ImageUrl" class="form-control" />
-        <span asp-validation-for="ImageUrl" class="text-danger"></span>
-    </div>
-    <button type="submit" class="btn btn-success">Kaydet</button>
-    <a asp-action="Index" class="btn btn-secondary">İptal</a>
-</form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

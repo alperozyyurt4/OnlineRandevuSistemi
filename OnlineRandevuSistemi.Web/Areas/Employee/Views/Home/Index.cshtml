@@ -5,33 +5,46 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Çalışan Paneli</h2>
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card text-white bg-primary mb-3">
-            <div class="card-header">Toplam Randevu</div>
-            <div class="card-body">
-                <h5 class="card-title">@Model.TotalAppointments</h5>
-                <a class="btn btn-light btn-sm mt-2" asp-area="Employee" asp-controller="Appointment" asp-action="Index">Görüntüle</a>
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h3 class="fw-bold text-primary">👨‍💼 Çalışan Paneli</h3>
+        <p class="text-muted">Randevu durumlarınızı hızlıca görüntüleyin</p>
+    </div>
 
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-start border-primary border-4">
+                <div class="card-body text-center">
+                    <h5 class="text-muted mb-2">Toplam Randevu</h5>
+                    <h2 class="text-primary fw-bold">@Model.TotalAppointments</h2>
+                    <a class="btn btn-outline-primary mt-3 w-100" asp-area="Employee" asp-controller="Appointment" asp-action="Index">
+                        <i class="bi bi-calendar3"></i> Tüm Randevular
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-success mb-3">
-            <div class="card-header">Yaklaşan Randevu</div>
-            <div class="card-body">
-                <h5 class="card-title">@Model.UpcomingAppointments</h5>
-                <a class="btn btn-light btn-sm mt-2" asp-area="Employee" asp-controller="Appointment" asp-action="Upcoming">Görüntüle</a>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-start border-success border-4">
+                <div class="card-body text-center">
+                    <h5 class="text-muted mb-2">Yaklaşan Randevular</h5>
+                    <h2 class="text-success fw-bold">@Model.UpcomingAppointments</h2>
+                    <a class="btn btn-outline-success mt-3 w-100" asp-area="Employee" asp-controller="Appointment" asp-action="Upcoming">
+                        <i class="bi bi-clock-history"></i> Yaklaşanlar
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-secondary mb-3">
-            <div class="card-header">Geçmiş Randevu</div>
-            <div class="card-body">
-                <h5 class="card-title">@Model.PastAppointments</h5>
-                <a class="btn btn-light btn-sm mt-2" asp-area="Employee" asp-controller="Appointment" asp-action="Past">Görüntüle</a>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-start border-secondary border-4">
+                <div class="card-body text-center">
+                    <h5 class="text-muted mb-2">Geçmiş Randevular</h5>
+                    <h2 class="text-secondary fw-bold">@Model.PastAppointments</h2>
+                    <a class="btn btn-outline-secondary mt-3 w-100" asp-area="Employee" asp-controller="Appointment" asp-action="Past">
+                        <i class="bi bi-archive-fill"></i> Geçmiş
+                    </a>
+                </div>
             </div>
         </div>
     </div>

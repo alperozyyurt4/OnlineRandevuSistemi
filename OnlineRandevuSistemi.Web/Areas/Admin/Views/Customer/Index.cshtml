@@ -5,36 +5,53 @@
     Layout = "_Layout";
 }
 
-<h2>Müşteri Listesi</h2>
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">👥 Müşteri Listesi</h4>
+            <a class="btn btn-success" asp-action="Create">
+                <i class="bi bi-plus-circle me-1"></i> Yeni Müşteri
+            </a>
+        </div>
 
-<a class="btn btn-success mb-3" asp-action="Create">Yeni Müşteri Ekle</a>
-
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Ad</th>
-            <th>Soyad</th>
-            <th>Email</th>
-            <th>Telefon</th>
-            <th>Not</th>
-            <th>İşlemler</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var customer in Model)
-        {
-            <tr>
-                <td>@customer.FirstName</td>
-                <td>@customer.LastName</td>
-                <td>@customer.Email</td>
-                <td>@customer.PhoneNumber</td>
-                <td>@customer.Notes</td>
-                <td>
-                    <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@customer.Id">Düzenle</a>
-                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@customer.Id"
-                       onclick="return confirm('Bu müşteriyi silmek istediğinize emin misiniz?');">Sil</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ad</th>
+                            <th>Soyad</th>
+                            <th>E-posta</th>
+                            <th>Telefon</th>
+                            <th>Not</th>
+                            <th class="text-end">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var customer in Model)
+                        {
+                            <tr>
+                                <td>@customer.FirstName</td>
+                                <td>@customer.LastName</td>
+                                <td>@customer.Email</td>
+                                <td>@customer.PhoneNumber</td>
+                                <td>@(string.IsNullOrWhiteSpace(customer.Notes) ? "-" : customer.Notes)</td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@customer.Id" title="Düzenle">
+                                            <i class="bi bi-pencil-square"></i>Düzenle
+                                        </a>
+                                        <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@customer.Id"
+                                           onclick="return confirm('Bu müşteriyi silmek istediğinize emin misiniz?');" title="Sil">
+                                            <i class="bi bi-trash"></i>Sil
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

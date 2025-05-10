@@ -5,53 +5,82 @@
     ViewData["Title"] = "Randevu Listesi";
 }
 
-<h2>Randevu Listesi</h2>
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">📅 Randevu Listesi</h4>
+            <a class="btn btn-success" asp-area="Admin" asp-controller="Appointment" asp-action="Create">
+                <i class="bi bi-plus-circle me-1"></i> Yeni Randevu
+            </a>
+        </div>
 
-<table class="table table-bordered">
-    <a class="btn btn-success mb-3" asp-area="Admin" asp-controller="Appointment" asp-action="Create">Yeni Randevu Ekle</a>
-    <thead>
-        <tr>
-            <th>Hizmet</th>
-            <th>Çalışan</th>
-            <th>Müşteri</th>
-            <th>Tarih</th>
-            <th>Durum</th>
-            <th>Fiyat</th>
-            <th>İşlem</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.ServiceName</td>
-                <td>@item.EmployeeName</td>
-                <td>@item.CustomerName</td>
-                <td>@item.AppointmentDate.ToString("g")</td>
-                <td>
-                    <form asp-action="UpdateStatus" method="post" class="d-inline">
-                        <input type="hidden" name="id" value="@item.Id" />
-                        <select name="status" class="form-select form-select-sm w-auto d-inline" onchange="this.form.submit()">
-                            <option value="0" selected="@((int)item.Status == 0)">Beklemede</option>
-                            <option value="1" selected="@((int)item.Status == 1)">Onaylandı</option>
-                            <option value="2" selected="@((int)item.Status == 2)">Tamamlandı</option>
-                            <option value="3" selected="@((int)item.Status == 3)">İptal Edildi</option>
-                            <option value="4" selected="@((int)item.Status == 4)">Gelmedi</option>
-                        </select>
-                    </form>
-                </td>
-                <td>@String.Format("{0:C}", item.Price)</td>
-                <td>
-                    <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id">Detay</a>
-                    <a class="btn btn-primary btn-sm" asp-action="Edit" asp-area="Admin" asp-route-id="@item.Id">Düzenle</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id"
-                       class="btn btn-danger btn-sm"
-                       onclick="return confirm('Bu randevuyu silmek istediğinizden emin misiniz?');">
-                        Sil
-                    </a>
-
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Hizmet</th>
+                            <th>Çalışan</th>
+                            <th>Müşteri</th>
+                            <th>
+                                <a asp-action="Index" asp-route-sort="@(ViewBag.CurrentSort == "date_asc" ? "date_desc" : "date_asc")" class="text-dark text-decoration-none">
+                                 Tarih
+                                 @if (ViewBag.CurrentSort == "date_asc")
+                                    {
+                                        <i class="bi bi-arrow-down"></i>
+                                    }
+                                    else if (ViewBag.CurrentSort == "date_desc")
+                                    {
+                                        <i class="bi bi-arrow-up"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th>Durum</th>
+                            <th>Fiyat</th>
+                            <th class="text-end">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.ServiceName</td>
+                                <td>@item.EmployeeName</td>
+                                <td>@item.CustomerName</td>
+                                <td>@item.AppointmentDate.ToString("dd MMM yyyy, HH:mm")</td>
+                                <td>
+                                    <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            <option value="0" selected="@((int)item.Status == 0)">Beklemede</option>
+                                            <option value="1" selected="@((int)item.Status == 1)">Onaylandı</option>
+                                            <option value="2" selected="@((int)item.Status == 2)">Tamamlandı</option>
+                                            <option value="3" selected="@((int)item.Status == 3)">İptal Edildi</option>
+                                            <option value="4" selected="@((int)item.Status == 4)">Gelmedi</option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td>@item.Price.ToString("C")</td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@item.Id">
+                                            <i class="bi bi-eye me-1"></i> Detay
+                                        </a>
+                                        <a class="btn btn-outline-primary" asp-action="Edit" asp-area="Admin" asp-route-id="@item.Id">
+                                            <i class="bi bi-pencil-square me-1"></i>  Düzenle
+                                        </a>
+                                        <a class="btn btn-outline-danger"
+                                           asp-action="Delete" asp-route-id="@item.Id"
+                                           onclick="return confirm('Bu randevuyu silmek istediğinizden emin misiniz?');">
+                                            <i class="bi bi-trash me-1"></i> Sil
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

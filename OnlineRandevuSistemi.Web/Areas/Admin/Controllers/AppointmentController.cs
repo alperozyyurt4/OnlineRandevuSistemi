@@ -33,10 +33,28 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             _customerService = customerService;
             _logger = logger;
         }
-
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? sort)
         {
             var appointments = await _appointmentService.GetAllAppointmentsAsync();
+
+            if (!string.IsNullOrEmpty(sort))
+            {
+                appointments = sort switch
+                {
+                    "date_desc" => appointments.OrderByDescending(a => a.AppointmentDate).ToList(),
+                    "date_asc" => appointments.OrderBy(a => a.AppointmentDate).ToList(),
+                    _ => appointments
+                };
+
+                ViewBag.CurrentSort = sort;
+            }
+            else
+            {
+                // DEFAULT davranış burada belirlenir → örneğin en son randevular yukarıda
+                appointments = appointments.OrderByDescending(a => a.AppointmentDate).ToList();
+                ViewBag.CurrentSort = null;
+            }
+
             return View(appointments);
         }
 

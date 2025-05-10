@@ -32,6 +32,8 @@ namespace OnlineRandevuSistemi.Web.Areas.Employee.Controllers
             var employee = await _employeeService.GetEmployeeByUserIdAsync(currentUser.Id);
             var appointments = await _appointmentService.GetAppointmentsByEmployeeIdAsync(employee.Id);
 
+            appointments = appointments.OrderByDescending(a => a.AppointmentDate).ToList();
+
             return View(appointments);
         }
         public async Task<IActionResult> Upcoming()

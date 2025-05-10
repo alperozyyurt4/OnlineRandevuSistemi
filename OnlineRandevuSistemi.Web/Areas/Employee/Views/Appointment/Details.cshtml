@@ -1,27 +1,64 @@
 ﻿@model OnlineRandevuSistemi.Business.DTOs.AppointmentDto
+
 @{
     ViewData["Title"] = "Randevu Detayı";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Randevu Detayı</h2>
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">📄 Randevu Detayı</h4>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">@Model.ServiceName</h5>
 
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">@Model.ServiceName</h5>
-        <p><strong>Müşteri:</strong> @Model.CustomerName</p>
-        <p><strong>Tarih:</strong> @Model.AppointmentDate.ToString("f")</p>
-        <p><strong>Durum:</strong> @Model.Status</p>
-        <p><strong>Notlar:</strong> @Model.Notes</p>
-        <p><strong>Ücret:</strong> @Model.Price.ToString("C")</p>
+            <dl class="row">
+                <dt class="col-sm-4">👤 Müşteri</dt>
+                <dd class="col-sm-8">@Model.CustomerName</dd>
 
-        @if (Model.Status == OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Confirmed)
-        {
-            <form asp-action="UpdateStatus" method="post">
-                <input type="hidden" name="id" value="@Model.Id" />
-                <input type="hidden" name="status" value="2" /> <!-- Completed -->
-                <button type="submit" class="btn btn-success">Tamamlandı Olarak İşaretle</button>
-            </form>
-        }
+                <dt class="col-sm-4">📅 Tarih</dt>
+                <dd class="col-sm-8">@Model.AppointmentDate.ToString("f")</dd>
+
+                <dt class="col-sm-4">💬 Notlar</dt>
+                <dd class="col-sm-8">@(!string.IsNullOrWhiteSpace(Model.Notes) ? Model.Notes : "-")</dd>
+
+                <dt class="col-sm-4">💰 Ücret</dt>
+                <dd class="col-sm-8">@Model.Price.ToString("C")</dd>
+
+                <dt class="col-sm-4">📌 Durum</dt>
+                <dd class="col-sm-8">
+                    @switch (Model.Status)
+                    {
+                        case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Pending:
+                            <span class="badge bg-warning text-dark">Beklemede</span>
+                            ; break;
+                        case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Confirmed:
+                            <span class="badge bg-success">Onaylandı</span>
+                            ; break;
+                        case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Completed:
+                            <span class="badge bg-secondary">Tamamlandı</span>
+                            ; break;
+                        case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Cancelled:
+                            <span class="badge bg-danger">İptal Edildi</span>
+                            ; break;
+                        default:
+                            <span class="badge bg-light text-dark">Bilinmiyor</span>
+                            ; break;
+                    }
+                </dd>
+            </dl>
+
+            @if (Model.Status == OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Confirmed)
+            {
+                <form asp-action="UpdateStatus" method="post" class="mt-4">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="status" value="2" /> <!-- Completed -->
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i> Tamamlandı Olarak İşaretle
+                    </button>
+                </form>
+            }
+        </div>
     </div>
 </div>

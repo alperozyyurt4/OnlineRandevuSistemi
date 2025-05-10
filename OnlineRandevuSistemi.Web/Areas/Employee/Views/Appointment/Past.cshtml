@@ -1,31 +1,53 @@
 ﻿@model IEnumerable<OnlineRandevuSistemi.Business.DTOs.AppointmentDto>
+
 @{
     ViewData["Title"] = "Geçmiş Randevular";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Geçmiş Randevular</h2>
-
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Hizmet</th>
-            <th>Müşteri</th>
-            <th>Tarih</th>
-            <th>Durum</th>
-            <th>Fiyat</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var a in Model)
-        {
-            <tr>
-                <td>@a.ServiceName</td>
-                <td>@a.CustomerName</td>
-                <td>@a.AppointmentDate.ToString("dd.MM.yyyy HH:mm")</td>
-                <td>@a.Status</td>
-                <td>@a.Price.ToString("C")</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">📁 Geçmiş Randevular</h4>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Hizmet</th>
+                            <th>Müşteri</th>
+                            <th>Tarih</th>
+                            <th>Durum</th>
+                            <th class="text-end">Fiyat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var a in Model)
+                        {
+                            <tr>
+                                <td>@a.ServiceName</td>
+                                <td>@a.CustomerName</td>
+                                <td>@a.AppointmentDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>
+                                    @switch (a.Status)
+                                    {
+                                        case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Completed:
+                                            <span class="badge bg-secondary">Tamamlandı</span>; break;
+                                        case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Cancelled:
+                                            <span class="badge bg-danger">İptal</span>; break;
+                                        case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.NoShow:
+                                            <span class="badge bg-dark">Gelmedi</span>; break;
+                                        default:
+                                            <span class="badge bg-light text-dark">@a.Status</span>; break;
+                                    }
+                                </td>
+                                <td class="text-end">@a.Price.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

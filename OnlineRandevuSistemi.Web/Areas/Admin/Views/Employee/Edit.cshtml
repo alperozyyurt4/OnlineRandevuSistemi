@@ -5,56 +5,73 @@
     Layout = "_Layout";
 }
 
-<h2>Çalışan Güncelle</h2>
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0">✏️ Çalışan Güncelle</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" asp-route-id="@ViewBag.EmployeeId" method="post">
+                <input type="hidden" asp-for="UserId" />
 
-<form asp-action="Edit" asp-route-id="@ViewBag.EmployeeId" method="post">
-    <input type="hidden" asp-for="UserId" />
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="FirstName" class="form-label">Ad</label>
+                        <input asp-for="FirstName" class="form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LastName" class="form-label">Soyad</label>
+                        <input asp-for="LastName" class="form-control" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
 
-    <div class="mb-3">
-        <label asp-for="FirstName" class="form-label"></label>
-        <input asp-for="FirstName" class="form-control" />
-        <span asp-validation-for="FirstName" class="text-danger"></span>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Email" class="form-label">E-posta</label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PhoneNumber" class="form-label">Telefon</label>
+                        <input asp-for="PhoneNumber" class="form-control" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label">Adres</label>
+                    <input asp-for="Address" class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DateOfBirth" class="form-label">Doğum Tarihi</label>
+                        <input asp-for="DateOfBirth" type="date" class="form-control" />
+                        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Biography" class="form-label">Biyografi</label>
+                        <textarea asp-for="Biography" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="Biography" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left-circle me-1"></i> İptal
+                    </a>
+                    <button type="submit" class="btn btn-warning text-dark fw-semibold">
+                        <i class="bi bi-pencil-square me-1"></i> Güncelle
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="LastName" class="form-label"></label>
-        <input asp-for="LastName" class="form-control" />
-        <span asp-validation-for="LastName" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="PhoneNumber" class="form-label"></label>
-        <input asp-for="PhoneNumber" class="form-control" />
-        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Address" class="form-label"></label>
-        <input asp-for="Address" class="form-control" />
-        <span asp-validation-for="Address" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="DateOfBirth" class="form-label"></label>
-        <input asp-for="DateOfBirth" class="form-control" type="date" />
-        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Biography" class="form-label"></label>
-        <textarea asp-for="Biography" class="form-control"></textarea>
-        <span asp-validation-for="Biography" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Güncelle</button>
-    <a asp-action="Index" class="btn btn-secondary">İptal</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

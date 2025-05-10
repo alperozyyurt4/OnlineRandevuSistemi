@@ -3,52 +3,67 @@
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Hizmet Listesi";
-    
 }
 
-<h2 class="mt-4">Hizmet Listesi</h2>
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">🛠️ Hizmet Listesi</h4>
+            <a class="btn btn-success" asp-area="Admin" asp-controller="Service" asp-action="Create">
+                <i class="bi bi-plus-circle me-1"></i> Yeni Hizmet
+            </a>
+        </div>
 
-<a class="btn btn-success mb-3" asp-area="Admin" asp-controller="Service" asp-action="Create">Yeni Hizmet Ekle</a>
-
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>Ad</th>
-            <th>Açıklama</th>
-            <th>Fiyat</th>
-            <th>Süre (dk)</th>
-            <th style="width: 150px;">İşlemler</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model != null && Model.Any())
-        {
-            foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.Name</td>
-                    <td>@item.Description</td>
-                    <td>@String.Format("{0:C}", item.Price)</td>
-                    <td>@item.DurationMinutes</td>
-                    <td>
-                        <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@item.Id">Düzenle</a>
-
-                        <a class="btn btn-danger btn-sm"
-                           asp-action="Delete"
-                           asp-route-id="@item.Id"
-                           onclick="return confirm('Bu hizmeti silmek istediğinize emin misiniz?');">
-                            Sil
-                        </a>
-
-                    </td>
-                </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="5" class="text-center text-muted">Kayıtlı hizmet bulunamadı.</td>
-            </tr>
-        }
-    </tbody>
-</table>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ad</th>
+                            <th>Açıklama</th>
+                            <th>Fiyat</th>
+                            <th>Süre (dk)</th>
+                            <th class="text-end" style="width: 140px;">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Name</td>
+                                    <td>@item.Description</td>
+                                    <td>@String.Format("{0:C}", item.Price)</td>
+                                    <td>@item.DurationMinutes</td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.Id" title="Düzenle">
+                                                <i class="bi bi-pencil-square"></i> Düzenle
+                                            </a>
+                                            <a class="btn btn-outline-danger"
+                                               asp-action="Delete"
+                                               asp-route-id="@item.Id"
+                                               onclick="return confirm('Bu hizmeti silmek istediğinize emin misiniz?');"
+                                               title="Sil">
+                                                <i class="bi bi-trash"></i> Sil
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="bi bi-info-circle me-2"></i> Kayıtlı hizmet bulunamadı.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
