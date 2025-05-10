@@ -1,11 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace OnlineRandevuSistemi.Web.ViewModels
 {
     public class EmployeeEditViewModel
     {
         public int Id { get; set; }
-        public string UserId { get; set; }
+      
 
         [Required]
         public string FirstName { get; set; }
@@ -27,5 +28,10 @@ namespace OnlineRandevuSistemi.Web.ViewModels
         public DateTime? DateOfBirth { get; set; }
 
         public string? ProfilePicture { get; set; }
+
+        [Display(Name = "Hizmetler")]
+        public List<int> SelectedServiceIds { get; set; } = new();
+        public List<SelectListItem> Services{ get; set; } = new();
+
     }
 }

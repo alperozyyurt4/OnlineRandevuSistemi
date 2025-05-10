@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace OnlineRandevuSistemi.Web.ViewModels
@@ -35,10 +36,9 @@ namespace OnlineRandevuSistemi.Web.ViewModels
         public string Address { get; set; }
 
 
-        public string UserId { get; set; }
 
         [Display(Name ="Biyografi")]
-        public string Biography { get; set; }
+        public string? Biography { get; set; }
 
 
 
@@ -46,5 +46,9 @@ namespace OnlineRandevuSistemi.Web.ViewModels
         [Display(Name = "Doğum Tarihi")]
         [DataType(DataType.Date)]
         public DateTime? DateOfBirth { get; set; }
+
+        [Display(Name = "Hizmetler")]
+        public List<int> SelectedServiceIds { get; set; } = new();
+        public List<SelectListItem> Services { get; set; } = new();
     }
 }

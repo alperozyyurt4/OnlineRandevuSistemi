@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using OnlineRandevuSistemi.Business.DTOs;
 using OnlineRandevuSistemi.Business.Interfaces;
 using OnlineRandevuSistemi.Core.Entities;
@@ -14,11 +15,13 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IEmployeeService _employeeService;
+        private readonly IServiceService _serviceService;
 
-        public EmployeeController(UserManager<AppUser> userManager, IEmployeeService employeeService)
+        public EmployeeController(UserManager<AppUser> userManager, IEmployeeService employeeService, IServiceService serviceService)
         {
             _userManager = userManager;
             _employeeService = employeeService;
+            _serviceService = serviceService;
         }
 
 
@@ -27,9 +30,20 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             var employees = await _employeeService.GetAllEmployeesAsync();
             return View(employees);
         }
-        public IActionResult Create()
+        [HttpGet]
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var model = new EmployeeCreateViewModel
+            {
+                Services = (await _serviceService.GetAllServicesAsync())
+                            .Select(s => new SelectListItem
+                            {
+                                Value = s.Id.ToString(),
+                                Text = s.Name
+                            }).ToList()
+            };
+
+            return View(model);
         }
 
         [HttpPost]
@@ -44,6 +58,13 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                         Console.WriteLine($"Hata: {error.Key} - {e.ErrorMessage}");
                     }
                 }
+                model.Services = (await _serviceService.GetAllServicesAsync())
+                                .Select(s => new SelectListItem
+                                {
+                                    Value = s.Id.ToString(),
+                                    Text = s.Name
+                                }).ToList();
+                return View(model);
             }
 
             var user = new AppUser
@@ -55,7 +76,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 PhoneNumber = model.PhoneNumber,
                 Address = model.Address,
                 DateOfBirth = model.DateOfBirth ?? DateTime.Now,
-                ProfilePicture = model.ProfilePicture ??= "/images/default-profile.jpg"
+                ProfilePicture = model.ProfilePicture ?? "/images/default-profile.jpg"
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -63,6 +84,13 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             {
                 foreach (var err in result.Errors)
                     ModelState.AddModelError(string.Empty, err.Description);
+
+                model.Services = (await _serviceService.GetAllServicesAsync())
+                                .Select(s => new SelectListItem
+                                {
+                                    Value = s.Id.ToString(),
+                                    Text = s.Name
+                                }).ToList();
                 return View(model);
             }
 
@@ -72,23 +100,23 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             {
                 UserId = user.Id,
                 IsAvailable = true,
-                Biography = "Yeni çalışan",
-                HourlyDate = 100,
-                Position = "Genel"
+                Biography = model.Biography ?? "Henüz eklenmedi",
+                HourlyDate = 100, // sabit örnek değer
+                Position = "Genel", // sabit örnek değer
+                ServiceIds = model.SelectedServiceIds // 💥 Hizmet ataması burada
             });
 
             return RedirectToAction("Index");
         }
-
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var emp = await _employeeService.GetEmployeeByIdAsync(id);
             if (emp == null) return NotFound();
 
-            var model = new EmployeeCreateViewModel
+            var model = new EmployeeEditViewModel
             {
-                UserId = emp.UserId,
+                Id = emp.Id,
                 FirstName = emp.FirstName,
                 LastName = emp.LastName,
                 Email = emp.Email,
@@ -96,18 +124,30 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 Address = emp.Address,
                 DateOfBirth = emp.DateOfBirth,
                 Biography = emp.Biography,
-                ProfilePicture = emp.ProfilePicture
+                ProfilePicture = emp.ProfilePicture,
+                SelectedServiceIds = emp.ServiceIds,
+                Services = (await _serviceService.GetAllServicesAsync())
+                            .Select(s => new SelectListItem
+                            {
+                                Value = s.Id.ToString(),
+                                Text = s.Name
+                            }).ToList()
             };
 
             ViewBag.EmployeeId = id;
             return View(model);
         }
-
         [HttpPost]
         public async Task<IActionResult> Edit(int id, EmployeeEditViewModel model)
         {
             if (!ModelState.IsValid)
             {
+                model.Services = (await _serviceService.GetAllServicesAsync())
+                                 .Select(s => new SelectListItem
+                                 {
+                                     Value = s.Id.ToString(),
+                                     Text = s.Name
+                                 }).ToList();
                 ViewBag.EmployeeId = id;
                 return View(model);
             }
@@ -115,7 +155,6 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             var dto = new EmployeeDto
             {
                 Id = id,
-                UserId = model.UserId,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 Email = model.Email,
@@ -123,10 +162,11 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 Address = model.Address,
                 DateOfBirth = model.DateOfBirth ?? DateTime.Now,
                 Biography = model.Biography,
-                ProfilePicture = model.ProfilePicture  ??= "/images/default-profile.jpg",
-                Position = "Güncellendi", // örnek
-                HourlyDate = 150, // örnek
-                IsAvailable = true
+                ProfilePicture = model.ProfilePicture ?? "/images/default-profile.jpg",
+                Position = "Güncellendi",
+                HourlyDate = 150,
+                IsAvailable = true,
+                ServiceIds = model.SelectedServiceIds
             };
 
             await _employeeService.UpdateEmployeeAsync(dto);

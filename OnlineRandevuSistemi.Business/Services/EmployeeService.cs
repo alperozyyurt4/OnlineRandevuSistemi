@@ -55,10 +55,12 @@ namespace OnlineRandevuSistemi.Business.Services
             var employee = await _employeeRepository.TableNoTracking
                 .Include(e => e.User)
                 .Include(e => e.EmployeeServices)
+                .ThenInclude(es => es.Service)
                 .Include(e => e.WorkingHours)
                 .FirstOrDefaultAsync(e => e.Id == id);
-
-            return _mapper.Map<EmployeeDto>(employee);
+            var dto = _mapper.Map<EmployeeDto>(employee);
+            dto.ServiceIds = employee.EmployeeServices.Select(es => es.ServiceId).ToList();
+            return dto;
         }
 
         public async Task<EmployeeDto> GetEmployeeByUserIdAsync(string userId)
@@ -81,12 +83,30 @@ namespace OnlineRandevuSistemi.Business.Services
 
             return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
         }
-
         public async Task<EmployeeDto> CreateEmployeeAsync(EmployeeDto employeeDto)
         {
             var employee = _mapper.Map<Employee>(employeeDto);
             await _employeeRepository.AddAsync(employee);
             await _unitOfWork.SaveChangesAsync();
+
+            // 🔥 Yeni: Hizmet Atamaları
+            if (employeeDto.ServiceIds != null && employeeDto.ServiceIds.Any())
+            {
+                foreach (var serviceId in employeeDto.ServiceIds)
+                {
+                    var employeeService = new EntityEmployeeService
+                    {
+                        EmployeeId = employee.Id,
+                        ServiceId = serviceId,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    await _employeeServiceRepository.AddAsync(employeeService);
+                }
+                await _unitOfWork.SaveChangesAsync();
+            }
+
+            // 🕓 Varsayılan Çalışma Saatleri
             foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
             {
                 if (day == DayOfWeek.Saturday || day == DayOfWeek.Sunday) continue;
@@ -100,22 +120,25 @@ namespace OnlineRandevuSistemi.Business.Services
                     IsWorkingDay = true,
                     CreatedDate = DateTime.Now,
                 };
+
                 await _workingHourRepository.AddAsync(workingHour);
             }
+
             await _unitOfWork.SaveChangesAsync();
+
             return _mapper.Map<EmployeeDto>(employee);
         }
         public async Task<EmployeeDto> UpdateEmployeeAsync(EmployeeDto employeeDto)
         {
-            // 1. Employee tablosundaki veriyi al
             var employee = await _employeeRepository.Table
-                .Include(e => e.User) // AppUser tablosuna erişmek için
+                .Include(e => e.User)
+                .Include(e => e.EmployeeServices)
                 .FirstOrDefaultAsync(e => e.Id == employeeDto.Id);
 
             if (employee == null)
                 throw new Exception("Employee not found");
 
-            // 2. AppUser (Identity) alanlarını güncelle
+            // AppUser güncellemesi
             employee.User.FirstName = employeeDto.FirstName;
             employee.User.LastName = employeeDto.LastName;
             employee.User.Email = employeeDto.Email;
@@ -126,14 +149,39 @@ namespace OnlineRandevuSistemi.Business.Services
             employee.User.ProfilePicture = employeeDto.ProfilePicture ?? "/images/default-profile.jpg";
             employee.User.UpdatedDate = DateTime.Now;
 
-            // 3. Employee alanlarını güncelle
+            // Employee güncellemesi
             employee.Position = employeeDto.Position;
             employee.Biography = employeeDto.Biography;
             employee.HourlyDate = employeeDto.HourlyDate;
             employee.IsAvailable = employeeDto.IsAvailable;
             employee.UpdatedDate = DateTime.Now;
 
-            // 4. Update ve Save işlemi
+            // 🔥 Hizmet eşleştirmelerini sıfırla ve yeniden ata
+            var existingServices = await _employeeServiceRepository
+                .Table
+                .Where(es => es.EmployeeId == employee.Id)
+                .ToListAsync();
+
+            foreach (var item in existingServices)
+            {
+                await _employeeServiceRepository.DeleteAsync(item.Id);
+            }
+            employee.EmployeeServices.Clear();
+
+            if (employeeDto.ServiceIds != null && employeeDto.ServiceIds.Any())
+            {
+                foreach (var serviceId in employeeDto.ServiceIds)
+                {
+                    var employeeService = new EntityEmployeeService
+                    {
+                        EmployeeId = employee.Id,
+                        ServiceId = serviceId,
+                        CreatedDate = DateTime.Now
+                    };
+                    await _employeeServiceRepository.AddAsync(employeeService);
+                }
+            }
+
             await _employeeRepository.UpdateAsync(employee);
             await _unitOfWork.SaveChangesAsync();
 
