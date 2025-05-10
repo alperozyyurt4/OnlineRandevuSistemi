@@ -1,8 +1,14 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Hoş Geldiniz";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-5 text-center">
+    <h1 class="display-5 fw-bold text-primary">Online Randevu Sistemine Hoş Geldiniz</h1>
+    <p class="lead text-muted mt-3">Devam etmek için giriş yapın veya yeni bir hesap oluşturun.</p>
+
+    <div class="mt-4">
+        <a class="btn btn-outline-primary me-2" asp-area="Identity" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+        <a class="btn btn-outline-success" asp-area="Identity" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
+    </div>
 </div>

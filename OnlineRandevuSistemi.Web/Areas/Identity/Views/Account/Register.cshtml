@@ -1,0 +1,83 @@
+﻿@model OnlineRandevuSistemi.Web.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Kayıt Ol";
+    Layout = "_Layout";
+}
+
+<div class="container py-5 d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+    <div class="card shadow-sm p-4 w-100" style="max-width: 550px;">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-success">📝 Kayıt Ol</h3>
+            <p class="text-muted">Yeni bir hesap oluşturmak için bilgilerinizi doldurun.</p>
+        </div>
+
+
+        <form asp-action="Register" method="post" novalidate>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="FirstName" class="form-label">Ad</label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="LastName" class="form-label">Soyad</label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <label asp-for="Email" class="form-label">E-posta</label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label asp-for="PhoneNumber" class="form-label">Telefon</label>
+                    <input asp-for="PhoneNumber" class="form-control" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+
+             
+
+              
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Password" class="form-label">Şifre</label>
+                    <input asp-for="Password" type="password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <label asp-for="ConfirmPassword" class="form-label">Şifre Tekrar</label>
+                    <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label asp-for="DateOfBirth" class="form-label">Doğum Tarihi</label>
+                    <input asp-for="DateOfBirth" type="date" class="form-control" />
+                    <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                </div>
+                <div class="col-12 mb-3">
+                    <label asp-for="Address" class="form-label">Adres</label>
+                    <textarea asp-for="Address" class="form-control"></textarea>
+                    <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-success fw-semibold">
+                    <i class="bi bi-person-plus-fill me-1"></i> Kayıt Ol
+                </button>
+            </div>
+
+            <div class="text-center mt-3">
+                <span class="text-muted">Zaten hesabınız var mı?</span>
+                <a asp-action="Login" asp-controller="Account" asp-area="Identity" class="text-decoration-none fw-semibold">Giriş Yap</a>
+            </div>
+        </form>
+      
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
