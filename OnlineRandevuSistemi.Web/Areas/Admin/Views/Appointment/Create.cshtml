@@ -13,8 +13,8 @@
         <div class="card-body">
             <form asp-action="Create" method="post">
                 @Html.AntiForgeryToken()
-                <div class="row">
-                    <div class="col-md-6 mb-3">
+                <div class="row mb-3">
+                    <div class="col-md-6">
                         <label asp-for="ServiceId" class="form-label">Hizmet</label>
                         <select asp-for="ServiceId" asp-items="Model.Services" class="form-select" required id="ServiceId">
                             <option value="">Seçiniz</option>
@@ -22,9 +22,9 @@
                         <span asp-validation-for="ServiceId" class="text-danger"></span>
                     </div>
 
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <label asp-for="EmployeeId" class="form-label">Çalışan</label>
-                        <select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select" required>
+                        <select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select" required id="EmployeeId">
                             <option value="">Seçiniz</option>
                         </select>
                         <span asp-validation-for="EmployeeId" class="text-danger"></span>
@@ -40,9 +40,15 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="AppointmentDate" class="form-label">Tarih ve Saat</label>
-                    <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
-                    <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                    <label class="form-label">Tarih ve Saat Seçimi</label>
+                    <div id="availabilityTable" class="border rounded p-3">
+                        <p class="text-muted">Lütfen önce çalışan seçin. Takvim ve saatler otomatik yüklenecek.</p>
+                    </div>
+                    <input type="hidden" id="SelectedTime" name="SelectedTime" />
+                    <input type="hidden" id="AppointmentDate" name="AppointmentDate" />
+                    <span asp-validation-for="SelectedTime" class="text-danger"></span>
+                    <div id="dateError" class="text-danger"></div>
+                    <p class="fw-bold text-primary mt-2">Seçilen: <span id="selected-info">-</span></p>
                 </div>
 
                 <div class="mb-3">
@@ -63,30 +69,160 @@
         </div>
     </div>
 </div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        $('#ServiceId').on('change', function () {
-            var serviceId = $(this).val();
-            $('#EmployeeId').empty().append('<option value="">Yükleniyor...</option>');
+        $(document).ready(function () {
+            // Hizmet seçilince çalışanları getir
+            $('#ServiceId').on('change', function () {
+                var serviceId = $(this).val();
+                $('#EmployeeId').empty().append('<option value="">Yükleniyor...</option>');
 
-            if (serviceId) {
-                $.ajax({
-                    url: '/Admin/Appointment/GetEmployeesByServiceId',
-                    data: { serviceId: serviceId },
-                    success: function (data) {
-                        $('#EmployeeId').empty().append('<option value="">Seçiniz</option>');
-                        $.each(data, function (i, item) {
-                            $('#EmployeeId').append(`<option value="${item.value}">${item.text}</option>`);
-                        });
-                    },
-                    error: function () {
-                        $('#EmployeeId').empty().append('<option value="">Hata oluştu</option>');
-                    }
-                });
-            } else {
-                $('#EmployeeId').empty().append('<option value="">Önce hizmet seçin</option>');
+                if (serviceId) {
+                    $.ajax({
+                        url: '/Admin/Appointment/GetEmployeesByServiceId',
+                        data: { serviceId: serviceId },
+                        success: function (data) {
+                            $('#EmployeeId').empty().append('<option value="">Seçiniz</option>');
+                            $.each(data, function (i, item) {
+                                $('#EmployeeId').append(`<option value="${item.value}">${item.text}</option>`);
+                            });
+                        },
+                        error: function () {
+                            $('#EmployeeId').empty().append('<option value="">Hata oluştu</option>');
+                        }
+                    });
+                } else {
+                    $('#EmployeeId').empty().append('<option value="">Önce hizmet seçin</option>');
+                }
+            });
+
+            // Çalışan değişince takvimi getir
+            $('#EmployeeId').on('change', function () {
+                var employeeId = $(this).val();
+                var today = new Date().toISOString().split('T')[0];
+                if (employeeId) {
+                    $.ajax({
+                        url: '/Admin/Appointment/GetWeeklyAvailability',
+                        data: { employeeId: employeeId, selectedDate: today },
+                        type: 'GET',
+                        success: function (html) {
+                            $('#availabilityTable').html(html);
+                            $('#SelectedTime').val("");
+                            $('#AppointmentDate').val("");
+                            $('#selected-info').text("-");
+                            $('#dateError').text("");
+                            $('button[type="submit"]').prop('disabled', false);
+                        },
+                        error: function () {
+                            $('#availabilityTable').html("<p class='text-danger'>Takvim yüklenirken hata oluştu.</p>");
+                        }
+                    });
+                }
+            });
+
+            // Gün seçimi
+            $(document).on('click', '.date-selector-btn', function () {
+                $('.date-selector-btn').removeClass('active');
+                $(this).addClass('active');
+
+                const selectedDate = $(this).data('date');
+                $('#AppointmentDate').val(selectedDate);
+                loadTimeSlotsForDate(selectedDate);
+            });
+
+            function loadTimeSlotsForDate(date) {
+                const employeeId = $('#EmployeeId').val();
+                if (employeeId) {
+                    $.ajax({
+                        url: '/Admin/Appointment/GetTimeSlotsForDate',
+                        data: {
+                            employeeId: employeeId,
+                            selectedDate: date
+                        },
+                        success: function (html) {
+                            $('#availabilityTable .timeslot-area').html(html);
+                            $('#dateError').text("");
+                            $('button[type="submit"]').prop('disabled', false);
+                        }
+                    });
+                }
             }
+
+            // Saat seçimi yaptığında
+            $(document).on('click', '.timeslot', function () {
+                $('.timeslot').removeClass('selected');
+                $(this).addClass('selected');
+
+                const selectedTime = $(this).data('time');
+                const selectedDate = $('#AppointmentDate').val();
+                const selectedDateTime = new Date(`${selectedDate}T${selectedTime}`);
+
+                $('#SelectedTime').val(selectedTime);
+                $('#selected-info').text(`${selectedDate} - ${selectedTime}`);
+
+                // Geçmiş tarih kontrolü
+                if (selectedDateTime < new Date()) {
+                    $('#dateError').text('Geçmiş bir tarih seçtiniz! Lütfen gelecekte bir tarih seçin.');
+                    $('button[type="submit"]').prop('disabled', true);
+                } else {
+                    $('#dateError').text('');
+                    $('button[type="submit"]').prop('disabled', false);
+                }
+            });
+
+            // Haftalık gezinme
+            $('#availabilityTable').on('click', '#prevWeek, #nextWeek', function () {
+                const direction = $(this).attr('id') === 'prevWeek' ? -7 : 7;
+                const employeeId = $('#EmployeeId').val();
+                const currentFirstDate = $('.date-selector-btn').first().data('date');
+
+                if (employeeId && currentFirstDate) {
+                    const newStartDate = new Date(currentFirstDate);
+                    newStartDate.setDate(newStartDate.getDate() + direction);
+
+                    $.ajax({
+                        url: '/Admin/Appointment/GetWeeklyAvailability',
+                        data: {
+                            employeeId: employeeId,
+                            selectedDate: newStartDate.toISOString().split('T')[0]
+                        },
+                        type: 'GET',
+                        success: function (html) {
+                            $('#availabilityTable').html(html);
+                            $('#SelectedTime').val("");
+                            $('#AppointmentDate').val("");
+                            $('#selected-info').text("-");
+                            $('#dateError').text("");
+                            $('button[type="submit"]').prop('disabled', false);
+                        },
+                        error: function () {
+                            $('#availabilityTable').html("<p class='text-danger'>Hafta yüklenemedi.</p>");
+                        }
+                    });
+                }
+            });
+
+            // Form submit validation
+            $("form").on("submit", function () {
+                if (!$('#SelectedTime').val() || !$('#AppointmentDate').val()) {
+                    alert("Lütfen bir tarih ve saat seçiniz.");
+                    return false;
+                }
+
+                // Geçmiş tarih kontrolü (çift kontrol için)
+                const selectedDate = $('#AppointmentDate').val();
+                const selectedTime = $('#SelectedTime').val();
+                const selectedDateTime = new Date(`${selectedDate}T${selectedTime}`);
+
+                if (selectedDateTime < new Date()) {
+                    alert("Geçmiş bir tarihe randevu oluşturulamaz!");
+                    return false;
+                }
+
+                return true;
+            });
         });
     </script>
 }

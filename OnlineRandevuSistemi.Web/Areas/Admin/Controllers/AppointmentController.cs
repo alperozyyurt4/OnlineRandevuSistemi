@@ -8,6 +8,9 @@ using OnlineRandevuSistemi.Web.ViewModels;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
 {
@@ -20,21 +23,24 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly ICustomerService _customerService;
         private readonly ILogger<AppointmentController> _logger;
+        private readonly IMapper _mapper;
 
         public AppointmentController(
             IAppointmentService appointmentService,
             IServiceService serviceService,
             IEmployeeService employeeService,
             ICustomerService customerService,
-            ILogger<AppointmentController> logger
-            )
+            ILogger<AppointmentController> logger,
+            IMapper mapper)
         {
             _appointmentService = appointmentService;
             _serviceService = serviceService;
             _employeeService = employeeService;
             _customerService = customerService;
             _logger = logger;
+            _mapper = mapper;
         }
+
         public async Task<IActionResult> Index(string? sort)
         {
             var appointments = await _appointmentService.GetAllAppointmentsAsync();
@@ -52,7 +58,6 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             }
             else
             {
-                // DEFAULT davranış burada belirlenir → örneğin en son randevular yukarıda
                 appointments = appointments.OrderByDescending(a => a.AppointmentDate).ToList();
                 ViewBag.CurrentSort = null;
             }
@@ -60,7 +65,6 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             return View(appointments);
         }
 
-        // Detay Sayfası Action'ı
         public async Task<IActionResult> Details(int id)
         {
             try
@@ -103,10 +107,6 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                         Text = e.FirstName + " " + e.LastName
                     }).ToList();
             }
-            else
-            {
-                model.Employees = new List<SelectListItem>();
-            }
 
             return View(model);
         }
@@ -115,26 +115,20 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AppointmentCreateViewModel model)
         {
-            // ModelState'den dropdown listelerini çıkar
             ModelState.Remove("Services");
             ModelState.Remove("Employees");
             ModelState.Remove("Customers");
+            ModelState.Remove("Availability");
+
+            // Geçmiş tarih kontrolü
+            var selectedDateTime = DateTime.Parse($"{model.AppointmentDate:yyyy-MM-dd} {model.SelectedTime}");
+            if (selectedDateTime < DateTime.Now)
+            {
+                ModelState.AddModelError("", "Geçmiş bir tarihe randevu oluşturulamaz!");
+            }
 
             if (!ModelState.IsValid)
             {
-                // Kalan validation hatalarını logla
-                foreach (var state in ModelState)
-                {
-                    if (state.Value.Errors.Count > 0)
-                    {
-                        foreach (var error in state.Value.Errors)
-                        {
-                            _logger.LogError($"Error in {state.Key}: {error.ErrorMessage}");
-                        }
-                    }
-                }
-
-                // Dropdown verilerini yeniden yükle
                 model.Services = (await _serviceService.GetAllServicesAsync())
                     .Select(s => new SelectListItem { Value = s.Id.ToString(), Text = s.Name }).ToList();
                 model.Employees = (await _employeeService.GetAllEmployeesAsync())
@@ -145,17 +139,17 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 return View(model);
             }
 
-            var dto = new AppointmentCreateDto
-            {
-                ServiceId = model.ServiceId,
-                EmployeeId = model.EmployeeId,
-                CustomerId = model.CustomerId,
-                AppointmentDate = model.AppointmentDate,
-                Notes = model.Notes
-            };
-
             try
             {
+                var dto = new AppointmentCreateDto
+                {
+                    ServiceId = model.ServiceId,
+                    EmployeeId = model.EmployeeId,
+                    CustomerId = model.CustomerId,
+                    AppointmentDate = selectedDateTime,
+                    Notes = model.Notes
+                };
+
                 await _appointmentService.CreateAppointmentAsync(dto);
                 return RedirectToAction(nameof(Index));
             }
@@ -164,7 +158,6 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 _logger.LogError($"Randevu oluşturulurken hata: {ex.Message}");
                 ModelState.AddModelError("", "Randevu oluşturulurken bir hata oluştu: " + ex.Message);
 
-                // Dropdown verilerini yeniden yükle
                 model.Services = (await _serviceService.GetAllServicesAsync())
                     .Select(s => new SelectListItem { Value = s.Id.ToString(), Text = s.Name }).ToList();
                 model.Employees = (await _employeeService.GetAllEmployeesAsync())
@@ -203,19 +196,16 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             return View(model);
         }
 
-        // POST Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(AppointmentCreateViewModel model)
         {
-            // ModelState'den dropdown listelerini çıkar
             ModelState.Remove("Services");
             ModelState.Remove("Employees");
             ModelState.Remove("Customers");
 
             if (!ModelState.IsValid)
             {
-                // Kalan validation hatalarını logla
                 foreach (var state in ModelState)
                 {
                     if (state.Value.Errors.Count > 0)
@@ -227,7 +217,6 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                     }
                 }
 
-                // Dropdown verilerini yeniden yükle
                 model.Services = (await _serviceService.GetAllServicesAsync())
                     .Select(s => new SelectListItem { Value = s.Id.ToString(), Text = s.Name }).ToList();
                 model.Employees = (await _employeeService.GetAllEmployeesAsync())
@@ -258,7 +247,6 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 _logger.LogError($"Randevu güncellenirken hata: {ex.Message}");
                 ModelState.AddModelError("", "Randevu güncellenirken bir hata oluştu: " + ex.Message);
 
-                // Dropdown verilerini yeniden yükle
                 model.Services = (await _serviceService.GetAllServicesAsync())
                     .Select(s => new SelectListItem { Value = s.Id.ToString(), Text = s.Name }).ToList();
                 model.Employees = (await _employeeService.GetAllEmployeesAsync())
@@ -269,6 +257,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 return View(model);
             }
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -278,7 +267,6 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             if (!result)
             {
                 _logger.LogWarning($"Silme işlemi başarısız oldu. ID: {id}");
-                // Hata mesajı gösterilebilir
             }
 
             return RedirectToAction(nameof(Index));
@@ -300,6 +288,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
         [HttpGet]
         public async Task<IActionResult> GetEmployeesByServiceId(int serviceId)
         {
@@ -313,5 +302,44 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             return Json(items);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetWeeklyAvailability(int employeeId, string selectedDate)
+        {
+            try
+            {
+                if (!DateTime.TryParse(selectedDate, out DateTime startDate))
+                    startDate = DateTime.Today;
+
+                var endDate = startDate.AddDays(6);
+
+                var dailyDtos = await _appointmentService.GetWeeklyAvailabilityAsync(employeeId, startDate, endDate);
+                var days = _mapper.Map<List<DailySlotViewModel>>(dailyDtos);
+
+                var viewModel = new WeeklyAvailabilityViewModel
+                {
+                    EmployeeId = employeeId,
+                    Days = days
+                };
+
+                return PartialView("_WeeklyAvailabilityPartial", viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"GetWeeklyAvailability Error: {ex.Message}");
+                return Content("<p class='text-danger'>Uygun saatler yüklenirken bir hata oluştu.</p>");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTimeSlotsForDate(int employeeId, string selectedDate)
+        {
+            if (!DateTime.TryParse(selectedDate, out var date))
+                return Content("<p class='text-danger'>Geçersiz tarih</p>");
+
+            var dailyDto = await _appointmentService.GetDailyAvailabilityAsync(employeeId, date);
+            var slots = dailyDto?.TimeSlots ?? new List<TimeSlotDto>();
+
+            return PartialView("_TimeSlotPartial", slots);
+        }
     }
-}   
+}
