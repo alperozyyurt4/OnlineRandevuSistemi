@@ -63,7 +63,28 @@
         </div>
     </div>
 </div>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            // Sayfa yüklendiğinde hizmet dropdown değiştiğinde çalışanları getir
+            $("#ServiceId").change(function () {
+                var serviceId = $(this).val();
+
+                if (serviceId) {
+                    $.get("/Admin/Appointment/GetEmployeesByServiceId", { serviceId: serviceId }, function (data) {
+                        var employeeDropdown = $("#EmployeeId");
+                        employeeDropdown.empty();
+                        employeeDropdown.append('<option value="">Seçiniz</option>');
+                        $.each(data, function (i, employee) {
+                            employeeDropdown.append(
+                                $("<option></option>").val(employee.value).text(employee.text)
+                            );
+                        });
+                    });
+                }
+            });
+        });
+    </script>
 }

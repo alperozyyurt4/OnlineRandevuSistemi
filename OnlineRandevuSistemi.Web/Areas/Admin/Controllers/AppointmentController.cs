@@ -176,12 +176,13 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             }
         }
 
-        // GET Edit
         public async Task<IActionResult> Edit(int id)
         {
             var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
             if (appointment == null)
                 return NotFound();
+
+            var employees = await _employeeService.GetEmployeesByServiceIdAsync(appointment.ServiceId);
 
             var model = new AppointmentCreateViewModel
             {
@@ -193,7 +194,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 Notes = appointment.Notes,
                 Services = (await _serviceService.GetAllServicesAsync())
                     .Select(s => new SelectListItem { Value = s.Id.ToString(), Text = s.Name }).ToList(),
-                Employees = (await _employeeService.GetAllEmployeesAsync())
+                Employees = employees
                     .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.FirstName + " " + e.LastName }).ToList(),
                 Customers = (await _customerService.GetAllCustomersAsync())
                     .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.FirstName + " " + c.LastName }).ToList()
