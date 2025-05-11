@@ -26,6 +26,15 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// Yetkisiz yönlendirme iþlemleri
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    options.SlidingExpiration = true;
+});
+
 // Cache
 builder.Services.AddMemoryCache();
 if (!builder.Environment.IsDevelopment())
@@ -53,6 +62,7 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 // MVC
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
 
 var app = builder.Build();
 

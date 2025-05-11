@@ -8,10 +8,12 @@ using AutoMapper;
 using OnlineRandevuSistemi.Core.Entities;
 using OnlineRandevuSistemi.Business.DTOs;
 using OnlineRandevuSistemi.DataAccess.Repositories;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class WorkingHourController : Controller
     {
         private readonly IRepository<WorkingHour> _workingHourRepository;

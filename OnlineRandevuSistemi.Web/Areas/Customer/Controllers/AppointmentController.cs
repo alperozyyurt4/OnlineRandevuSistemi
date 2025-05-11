@@ -9,10 +9,13 @@ using OnlineRandevuSistemi.Business.Services;
 using OnlineRandevuSistemi.Web.ViewModels;
 using OnlineRandevuSistemi.Core.Enums;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
 {
     [Area("Customer")]
+    [Authorize(Roles = "Customer")]
+
     public class AppointmentController : Controller
     {
         private readonly IAppointmentService _appointmentService;

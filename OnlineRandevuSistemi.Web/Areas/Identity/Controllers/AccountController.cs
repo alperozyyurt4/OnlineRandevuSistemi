@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineRandevuSistemi.Business.DTOs;
 using OnlineRandevuSistemi.Business.Interfaces;
@@ -23,12 +24,14 @@ namespace OnlineRandevuSistemi.Web.Areas.Identity.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
@@ -63,12 +66,16 @@ namespace OnlineRandevuSistemi.Web.Areas.Identity.Controllers
             return View(model);
         }
         [HttpGet]
+        [AllowAnonymous]
+
         public IActionResult Register()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
+
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid)
@@ -116,10 +123,16 @@ namespace OnlineRandevuSistemi.Web.Areas.Identity.Controllers
             return RedirectToAction("Index", "Home", new {area = "Customer"});
         }
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Login", "Account");
+        }
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
 
     }

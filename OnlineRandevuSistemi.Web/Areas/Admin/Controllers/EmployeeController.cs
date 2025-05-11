@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OnlineRandevuSistemi.Business.DTOs;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class EmployeeController : Controller
     {
         private readonly UserManager<AppUser> _userManager;

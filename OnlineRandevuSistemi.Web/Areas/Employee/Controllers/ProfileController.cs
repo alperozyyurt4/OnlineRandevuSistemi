@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineRandevuSistemi.Business.DTOs;
 using OnlineRandevuSistemi.Business.Interfaces;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 namespace OnlineRandevuSistemi.Web.Areas.Employee.Controllers
 {
     [Area("Employee")]
+    [Authorize(Roles = "Employee")]
     public class ProfileController : Controller
     {
         private readonly IEmployeeService _employeeService;

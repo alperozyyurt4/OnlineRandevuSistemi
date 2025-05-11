@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Erişim Engellendi";
+    Layout = "_Layout";
+}
+
+<div class="container py-5 text-center">
+    <div class="alert alert-danger shadow-sm">
+        <h2 class="mb-3">🚫 Erişim Reddedildi</h2>
+        <p class="lead">Bu sayfaya erişim yetkiniz bulunmamaktadır.</p>
+
+        <div class="mt-4">
+            @if (User.IsInRole("Admin"))
+            {
+                <a href="/Admin/Home/Index" class="btn btn-outline-primary">
+                    Admin Paneline Dön
+                </a>
+            }
+            else if (User.IsInRole("Customer"))
+            {
+                <a href="/Customer/Home/Index" class="btn btn-outline-success">
+                    Müşteri Paneline Dön
+                </a>
+            }
+            else if (User.IsInRole("Employee"))
+            {
+                <a href="/Employee/Home/Index" class="btn btn-outline-warning">
+                    Çalışan Paneline Dön
+                </a>
+            }
+            else
+            {
+                <a href="/" class="btn btn-secondary">Anasayfaya Dön</a>
+            }
+        </div>
+    </div>
+</div>

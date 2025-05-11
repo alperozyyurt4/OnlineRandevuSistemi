@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using OnlineRandevuSistemi.Core.Entities;
 using OnlineRandevuSistemi.Web.ViewModels;
 using OnlineRandevuSistemi.Core.Enums;
+using Microsoft.AspNetCore.Authorization;
 namespace OnlineRandevuSistemi.Web.Areas.Employee.Controllers
 {
     [Area("Employee")]
+    [Authorize(Roles = "Employee")]
     public class HomeController : Controller
     {
         private readonly IAppointmentService _appointmentService;

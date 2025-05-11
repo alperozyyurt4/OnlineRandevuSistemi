@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineRandevuSistemi.Business.Interfaces;
 using OnlineRandevuSistemi.Core.Enums;
 using OnlineRandevuSistemi.Web.ViewModels;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class HomeController : Controller
     {
         private readonly IAppointmentService _appointmentService;

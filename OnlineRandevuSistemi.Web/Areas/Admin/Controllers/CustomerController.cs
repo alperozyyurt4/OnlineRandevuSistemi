@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineRandevuSistemi.Business.DTOs;
 using OnlineRandevuSistemi.Business.Interfaces;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class CustomerController : Controller
     {
         private readonly ICustomerService _customerService;

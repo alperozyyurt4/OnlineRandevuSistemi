@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OnlineRandevuSistemi.Core.Enums;
 using OnlineRandevuSistemi.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OnlineRandevuSistemi.Web.Areas.Employee.Controllers
 {
     [Area("Employee")]
+    [Authorize(Roles = "Employee")]
+
     public class AppointmentController : Controller
     {
         private readonly IAppointmentService _appointmentService;
