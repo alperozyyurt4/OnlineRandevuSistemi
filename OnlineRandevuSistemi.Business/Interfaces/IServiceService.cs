@@ -14,6 +14,7 @@ namespace OnlineRandevuSistemi.Business.Interfaces
         Task<ServiceDto> CreateServiceAsync(ServiceDto serviceDto);
         Task<ServiceDto> UpdateServiceAsync(ServiceDto serviceDto);
         Task<bool> DeleteServiceAsync(int id);
+        Task<List<ServiceDto>> GetPopularServicesAsync();
 
     }
 }

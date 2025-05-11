@@ -1,6 +1,7 @@
 ﻿// OnlineRandevuSistemi.Business/Services/ServiceService.cs
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using OnlineRandevuSistemi.Business.DTOs;
 using OnlineRandevuSistemi.Business.Interfaces;
 using OnlineRandevuSistemi.Core.Entities;
@@ -17,12 +18,14 @@ namespace OnlineRandevuSistemi.Business.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IEmployeeService _employeeService;
+        private readonly IMemoryCache _cache;
 
         public ServiceService(
             IRepository<Service> serviceRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper,
-            IEmployeeService employeeService
+            IEmployeeService employeeService,
+            IMemoryCache cache
             
             )
 
@@ -31,6 +34,7 @@ namespace OnlineRandevuSistemi.Business.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _employeeService = employeeService;
+            _cache = cache;
         }
 
         public async Task<IEnumerable<ServiceDto>> GetAllServicesAsync()
@@ -96,6 +100,27 @@ namespace OnlineRandevuSistemi.Business.Services
             await _unitOfWork.SaveChangesAsync();
 
             return true;
+        }
+        public async Task<List<ServiceDto>> GetPopularServicesAsync()
+        {
+            if (!_cache.TryGetValue("popular_services", out List<ServiceDto> cachedServices))
+            {
+                var services = await _serviceRepository.TableNoTracking
+                    .Where(s => !s.IsDeleted)
+                    .OrderByDescending(s => s.CreatedDate)
+                    .Take(5)
+                    .ToListAsync();
+
+                cachedServices = _mapper.Map<List<ServiceDto>>(services);
+
+                _cache.Set("popular_services", cachedServices,
+                    new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                    });
+            }
+
+            return cachedServices;
         }
 
     }

@@ -28,7 +28,6 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             _employeeService = employeeService;
             _serviceService = serviceService;
         }
-
         public async Task<IActionResult> Index()
         {
             var appointments = await _appointmentService.GetAllAppointmentsAsync();
@@ -40,7 +39,8 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 PendingAppointments = appointments.Count(a => a.Status == AppointmentStatus.Pending),
                 TotalCustomers = (await _customerService.GetAllCustomersAsync()).Count(),
                 TotalEmployees = (await _employeeService.GetAllEmployeesAsync()).Count(),
-                TotalServices = (await _serviceService.GetAllServicesAsync()).Count()
+                TotalServices = (await _serviceService.GetAllServicesAsync()).Count(),
+                PopularServices = await _serviceService.GetPopularServicesAsync() // 💡 Yeni satır
             };
 
             return View(model);

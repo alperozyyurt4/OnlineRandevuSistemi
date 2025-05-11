@@ -77,6 +77,38 @@
             </div>
         </div>
     </div>
+    @if (Model.PopularServices != null && Model.PopularServices.Any())
+    {
+        <div class="card mt-5 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">🔥 En Popüler Hizmetler</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    @foreach (var service in Model.PopularServices)
+                    {
+                        <div class="col-md-4 col-sm-6">
+                            <div class="card h-100 shadow-sm border-primary">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-star-fill text-warning fs-4 mb-2"></i>
+                                    <h5 class="card-title fw-bold">@service.Name</h5>
+                                    <p class="card-text text-muted mb-3">@($"{service.Price:N2} ₺")</p>
+                                    <a asp-area="Admin"
+                                       asp-controller="Appointment"
+                                       asp-action="Create"
+                                       asp-route-serviceId="@service.Id"
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-calendar-plus me-1"></i> Randevu Al
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
 </div>
 
 <style>

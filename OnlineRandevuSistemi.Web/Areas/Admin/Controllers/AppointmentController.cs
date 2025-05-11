@@ -80,7 +80,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             }
         }
 
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? serviceId)
         {
             var model = new AppointmentCreateViewModel
             {
@@ -89,8 +89,24 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 Employees = new List<SelectListItem>(),
                 Customers = (await _customerService.GetAllCustomersAsync())
                     .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.FirstName + " " + c.LastName }).ToList(),
+                ServiceId = serviceId ?? 0,
                 AppointmentDate = DateTime.Now
             };
+
+            if (serviceId.HasValue)
+            {
+                var employees = await _employeeService.GetEmployeesByServiceIdAsync(serviceId.Value);
+                model.Employees = employees
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.Id.ToString(),
+                        Text = e.FirstName + " " + e.LastName
+                    }).ToList();
+            }
+            else
+            {
+                model.Employees = new List<SelectListItem>();
+            }
 
             return View(model);
         }
