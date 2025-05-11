@@ -49,6 +49,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EmployeeCreateViewModel model)
         {
             if (!ModelState.IsValid)
@@ -140,6 +141,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             return View(model);
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, EmployeeEditViewModel model)
         {
             if (!ModelState.IsValid)
@@ -175,7 +177,8 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpGet]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             await _employeeService.DeleteEmployeeAsync(id);

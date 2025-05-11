@@ -16,15 +16,21 @@ namespace OnlineRandevuSistemi.Business.Services
         private readonly IRepository<Service> _serviceRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IEmployeeService _employeeService;
 
         public ServiceService(
             IRepository<Service> serviceRepository,
             IUnitOfWork unitOfWork,
-            IMapper mapper)
+            IMapper mapper,
+            IEmployeeService employeeService
+            
+            )
+
         {
             _serviceRepository = serviceRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _employeeService = employeeService;
         }
 
         public async Task<IEnumerable<ServiceDto>> GetAllServicesAsync()
@@ -68,8 +74,23 @@ namespace OnlineRandevuSistemi.Business.Services
 
         public async Task<bool> DeleteServiceAsync(int id)
         {
-            var service = await _serviceRepository.GetByIdAsync(id);
+            var service = await _serviceRepository.Table
+                .Include(s => s.Appointments)
+                .Include(s => s.EmployeeServices)
+                .FirstOrDefaultAsync(s => s.Id == id);
             if (service == null) return false;
+
+            foreach (var app in service.Appointments)
+            {
+                app.IsDeleted = true;
+                app.UpdatedDate = DateTime.Now; 
+            }
+            foreach (var es in service.EmployeeServices)
+            {
+                await _employeeService.DeleteEmployeeAsync(es.Id);
+            }
+            service.IsDeleted = true;
+            service.UpdatedDate = DateTime.Now;
 
             await _serviceRepository.DeleteAsync(id);
             await _unitOfWork.SaveChangesAsync();

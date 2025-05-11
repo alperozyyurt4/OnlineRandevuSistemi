@@ -60,6 +60,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
 
         // POST
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EmployeeWorkingHourDto model)
         {
             if (!ModelState.IsValid)

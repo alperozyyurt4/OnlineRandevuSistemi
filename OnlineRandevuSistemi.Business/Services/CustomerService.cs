@@ -104,9 +104,25 @@ namespace OnlineRandevuSistemi.Business.Services
 
         public async Task<bool> DeleteCustomerAsync(int id)
         {
-            var customer = await _customerRepository.GetByIdAsync(id);
+            var customer = await _customerRepository.Table
+                .Include(c => c.User)
+                .Include(c => c.Appointments)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (customer == null)
                 return false;
+
+            if (customer.User != null)
+            {
+                customer.User.IsDeleted = true;
+                customer.User.UpdatedDate = DateTime.Now;
+
+            }
+
+            foreach (var appointment in customer.Appointments)
+            {
+                appointment.IsDeleted = true;
+                appointment.UpdatedDate = DateTime.Now;
+            }
 
             await _customerRepository.DeleteAsync(id);
             await _unitOfWork.SaveChangesAsync();

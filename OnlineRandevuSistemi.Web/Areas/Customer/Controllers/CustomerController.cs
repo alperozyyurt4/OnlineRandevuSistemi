@@ -44,6 +44,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Profile(CustomerProfileViewModel model)
         {
             if (!ModelState.IsValid)

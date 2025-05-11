@@ -167,8 +167,16 @@ namespace OnlineRandevuSistemi.Business.Services
             if (appointment == null)
                 return false;
 
-            if (status == AppointmentStatus.Completed && appointment.AppointmentDate > DateTime.Now)
-                throw new Exception("Randevu tarihi henüz gelmediği için tamamlandı olarak işaretlenemez");
+            if ((status == AppointmentStatus.Completed || status == AppointmentStatus.NoShow) && appointment.AppointmentDate > DateTime.Now)
+            {
+                throw new Exception("Ramdevu tarihi henüz gelmediği için bu durumu seçemezsiniz.");
+            }
+            if ((status == AppointmentStatus.Pending || status == AppointmentStatus.Confirmed) && appointment.AppointmentDate < DateTime.Now)
+            {
+                throw new Exception("Geçmiş bir randevuya bu durum atanamaz.");
+            }
+
+
 
             appointment.Status = status;
             appointment.UpdatedDate = DateTime.Now;

@@ -12,6 +12,7 @@
         </div>
         <div class="card-body">
             <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
                 <div class="mb-3">
                     <label asp-for="Name" class="form-label">Hizmet Adı</label>
                     <input asp-for="Name" class="form-control" />

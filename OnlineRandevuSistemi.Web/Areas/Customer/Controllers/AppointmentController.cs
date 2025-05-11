@@ -76,6 +76,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CustomerAppointmentCreateViewModel model)
         {
             if (model.AppointmentDate < DateTime.Now)
@@ -133,6 +134,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
             return View(appointment);
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(int id)
         {
             var appointment = await _appointmentService.GetAppointmentByIdAsync(id);

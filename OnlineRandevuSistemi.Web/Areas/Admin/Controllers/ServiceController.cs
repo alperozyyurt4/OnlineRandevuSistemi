@@ -29,6 +29,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ServiceDto model)
         {
             if (ModelState.IsValid)
@@ -49,6 +50,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ServiceDto model)
         {
             if (ModelState.IsValid)

@@ -19,7 +19,8 @@
                             <th>Müşteri</th>
                             <th>Tarih</th>
                             <th>Durum</th>
-                            <th class="text-end">Fiyat</th>
+                            <th>Fiyat</th>
+                            <th class="text-end">İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -33,16 +34,25 @@
                                     @switch (a.Status)
                                     {
                                         case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Completed:
-                                            <span class="badge bg-secondary">Tamamlandı</span>; break;
+                                            <span class="badge bg-secondary">Tamamlandı</span>
+                                            ; break;
                                         case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.Cancelled:
-                                            <span class="badge bg-danger">İptal</span>; break;
+                                            <span class="badge bg-danger">İptal</span>
+                                            ; break;
                                         case OnlineRandevuSistemi.Core.Enums.AppointmentStatus.NoShow:
-                                            <span class="badge bg-dark">Gelmedi</span>; break;
+                                            <span class="badge bg-dark">Gelmedi</span>
+                                            ; break;
                                         default:
-                                            <span class="badge bg-light text-dark">@a.Status</span>; break;
+                                            <span class="badge bg-light text-dark">@a.Status</span>
+                                            ; break;
                                     }
                                 </td>
                                 <td class="text-end">@a.Price.ToString("C")</td>
+                                <td class="text-end">
+                                    <a asp-action="EditStatus" asp-route-id="@a.Id" class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-pencil-square me-1"></i> Durumu Güncelle
+                                    </a>
+                                </td>
                             </tr>
                         }
                     </tbody>

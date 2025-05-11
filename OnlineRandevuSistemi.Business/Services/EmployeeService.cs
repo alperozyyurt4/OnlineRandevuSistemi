@@ -190,11 +190,26 @@ namespace OnlineRandevuSistemi.Business.Services
 
         public async Task<bool> DeleteEmployeeAsync(int id)
         {
-            var employee = await _employeeRepository.GetByIdAsync(id);
+            var employee = await _employeeRepository.Table
+                .Include(a => a.User)
+                .Include(a => a.Appointments)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
             if (employee == null) return false;
 
             employee.IsDeleted = true;
             employee.UpdatedDate = DateTime.Now;
+            if (employee.User != null)
+            {
+                employee.User.IsDeleted = true;
+                employee.User.UpdatedDate = DateTime.Now;
+            }  
+            foreach (var appointment in employee.Appointments)
+            {
+                appointment.IsDeleted = true;
+                appointment.UpdatedDate = DateTime.Now;
+            }
+
 
             await _employeeRepository.UpdateAsync(employee);
             await _unitOfWork.SaveChangesAsync();

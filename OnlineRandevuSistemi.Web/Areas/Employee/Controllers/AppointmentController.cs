@@ -102,6 +102,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Employee.Controllers
             return View(model);
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditStatus(EmployeeAppointmentStatusViewModel model)
         {
             if (!ModelState.IsValid)

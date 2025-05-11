@@ -12,6 +12,7 @@
             <p class="text-muted">Yeni bir hesap oluşturmak için bilgilerinizi doldurun.</p>
         </div>
         <form asp-action="Register" method="post" novalidate>
+            @Html.AntiForgeryToken()
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label asp-for="FirstName" class="form-label">Ad</label>

@@ -35,6 +35,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CustomerCreateViewModel model)
         {
             if (!ModelState.IsValid)
@@ -93,6 +94,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(CustomerEditViewModel model)
         {
             if (!ModelState.IsValid)

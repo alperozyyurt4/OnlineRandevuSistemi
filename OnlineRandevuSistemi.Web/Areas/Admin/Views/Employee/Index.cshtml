@@ -52,10 +52,12 @@
                                         <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@emp.Id" title="Düzenle">
                                             <i class="bi bi-pencil-square"></i> Düzenle
                                         </a>
-                                        <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@emp.Id"
-                                           onclick="return confirm('Bu çalışanı silmek istediğinize emin misiniz?');" title="Sil">
+                                        <form asp-action="Delete" asp-route-id="@emp.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Bu çalışanı silmek istediğinizden emin misiniz?');">
                                             <i class="bi bi-trash"></i> Sil
-                                        </a>
+                                            </button>
+                                        </form>
                                         <a class="btn btn-outline-warning" asp-area="Admin" asp-controller="WorkingHour" asp-action="Index" asp-route-employeeId="@emp.Id" title="Çalışma Saatleri">
                                             <i class="bi bi-clock-history"> Çalışma Saatleri</i>
                                         </a>

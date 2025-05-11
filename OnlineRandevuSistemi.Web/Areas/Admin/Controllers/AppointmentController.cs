@@ -96,6 +96,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AppointmentCreateViewModel model)
         {
             // ModelState'den dropdown listelerini çıkar
@@ -187,6 +188,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
 
         // POST Edit
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(AppointmentCreateViewModel model)
         {
             // ModelState'den dropdown listelerini çıkar
@@ -250,7 +252,8 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 return View(model);
             }
         }
-        [HttpGet]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _appointmentService.DeleteAppointmentAsync(id);
@@ -265,6 +268,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStatus(int id, AppointmentStatus status)
         {
             var success = await _appointmentService.UpdateAppointmentStatusAsync(id, status);

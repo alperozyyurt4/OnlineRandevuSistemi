@@ -47,6 +47,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Employee.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EmployeeProfileEditViewModel model)
         {
             if (!ModelState.IsValid)
