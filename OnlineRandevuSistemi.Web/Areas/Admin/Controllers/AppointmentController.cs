@@ -84,8 +84,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             {
                 Services = (await _serviceService.GetAllServicesAsync())
                     .Select(s => new SelectListItem { Value = s.Id.ToString(), Text = s.Name }).ToList(),
-                Employees = (await _employeeService.GetAllEmployeesAsync())
-                    .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.FirstName + " " + e.LastName }).ToList(),
+                Employees = new List<SelectListItem>(),
                 Customers = (await _customerService.GetAllCustomersAsync())
                     .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.FirstName + " " + c.LastName }).ToList(),
                 AppointmentDate = DateTime.Now
@@ -277,6 +276,18 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesByServiceId(int serviceId)
+        {
+            var employees = await _employeeService.GetEmployeesByServiceIdAsync(serviceId);
+            var items = employees.Select(e => new SelectListItem
+            {
+                Value = e.Id.ToString(),
+                Text = $"{e.FirstName} {e.LastName}"
+            }).ToList();
+
+            return Json(items);
         }
 
     }

@@ -15,7 +15,7 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label asp-for="ServiceId" class="form-label">Hizmet</label>
-                        <select asp-for="ServiceId" asp-items="Model.Services" class="form-select" required>
+                        <select asp-for="ServiceId" asp-items="Model.Services" class="form-select" required id="ServiceId">
                             <option value="">Seçiniz</option>
                         </select>
                         <span asp-validation-for="ServiceId" class="text-danger"></span>
@@ -62,7 +62,30 @@
         </div>
     </div>
 </div>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $('#ServiceId').on('change', function () {
+            var serviceId = $(this).val();
+            $('#EmployeeId').empty().append('<option value="">Yükleniyor...</option>');
+
+            if (serviceId) {
+                $.ajax({
+                    url: '/Admin/Appointment/GetEmployeesByServiceId',
+                    data: { serviceId: serviceId },
+                    success: function (data) {
+                        $('#EmployeeId').empty().append('<option value="">Seçiniz</option>');
+                        $.each(data, function (i, item) {
+                            $('#EmployeeId').append(`<option value="${item.value}">${item.text}</option>`);
+                        });
+                    },
+                    error: function () {
+                        $('#EmployeeId').empty().append('<option value="">Hata oluştu</option>');
+                    }
+                });
+            } else {
+                $('#EmployeeId').empty().append('<option value="">Önce hizmet seçin</option>');
+            }
+        });
+    </script>
 }

@@ -13,7 +13,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label asp-for="ServiceId" class="form-label">Hizmet</label>
-                        <select asp-for="ServiceId" asp-items="Model.Services" class="form-select">
+                        <select asp-for="ServiceId" asp-items="Model.Services" class="form-select" id="ServiceId" required>
                             <option value="">Seçiniz</option>
                         </select>
                         <span asp-validation-for="ServiceId" class="text-danger"></span>
@@ -58,14 +58,38 @@
         </div>
     </div>
 </div>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
         $(document).ready(function () {
 
-            function loadAvailability() {
-                var employeeId = $('#EmployeeId').val();
+            // ⬇️ Hizmet seçilince çalışanları getir
+            $('#ServiceId').on('change', function () {
+                var serviceId = $(this).val();
+                $('#EmployeeId').empty().append('<option value="">Yükleniyor...</option>');
+
+                if (serviceId) {
+                    $.ajax({
+                        url: '/Customer/Appointment/GetEmployeesByServiceId',
+                        data: { serviceId: serviceId },
+                        success: function (data) {
+                            $('#EmployeeId').empty().append('<option value="">Seçiniz</option>');
+                            $.each(data, function (i, item) {
+                                $('#EmployeeId').append(`<option value="${item.value}">${item.text}</option>`);
+                            });
+                        },
+                        error: function () {
+                            $('#EmployeeId').empty().append('<option value="">Hata oluştu</option>');
+                        }
+                    });
+                } else {
+                    $('#EmployeeId').empty().append('<option value="">Önce hizmet seçin</option>');
+                }
+            });
+
+            // ⬇️ Çalışan değişince takvimi getir
+            $('#EmployeeId').on('change', function () {
+                var employeeId = $(this).val();
                 var today = new Date().toISOString().split('T')[0];
                 if (employeeId) {
                     $.ajax({
@@ -79,15 +103,13 @@
                             $('#selected-info').text("-");
                         },
                         error: function () {
-                            $('#availabilityTable').html("<p class='text-danger'>Takvim yüklenirken bir hata oluştu.</p>");
+                            $('#availabilityTable').html("<p class='text-danger'>Takvim yüklenirken hata oluştu.</p>");
                         }
                     });
                 }
-            }
+            });
 
-            $('#EmployeeId').on('change', loadAvailability);
-
-            // Gün seçimi
+            // ⬇️ Gün seçimi
             $(document).on('click', '.date-selector-btn', function () {
                 $('.date-selector-btn').removeClass('active');
                 $(this).addClass('active');
@@ -97,7 +119,23 @@
                 loadTimeSlotsForDate(selectedDate);
             });
 
-            // Saat seçimi
+            function loadTimeSlotsForDate(date) {
+                const employeeId = $('#EmployeeId').val();
+                if (employeeId) {
+                    $.ajax({
+                        url: '/Customer/Appointment/GetTimeSlotsForDate',
+                        data: {
+                            employeeId: employeeId,
+                            selectedDate: date
+                        },
+                        success: function (html) {
+                            $('#availabilityTable .timeslot-area').html(html);
+                        }
+                    });
+                }
+            }
+
+            // ⬇️ Saat seçimi
             $(document).on('click', '.timeslot', function () {
                 $('.timeslot').removeClass('selected');
                 $(this).addClass('selected');
@@ -109,7 +147,7 @@
                 $('#selected-info').text(`${selectedDate} - ${selectedTime}`);
             });
 
-            // Haftalık gezinme
+            // ⬇️ Haftalık gezinme
             $('#availabilityTable').on('click', '#prevWeek, #nextWeek', function () {
                 const direction = $(this).attr('id') === 'prevWeek' ? -7 : 7;
                 const employeeId = $('#EmployeeId').val();
@@ -133,19 +171,20 @@
                             $('#selected-info').text("-");
                         },
                         error: function () {
-                            $('#availabilityTable').html("<p class='text-danger'>Hafta geçişi sırasında hata oluştu.</p>");
+                            $('#availabilityTable').html("<p class='text-danger'>Hafta yüklenemedi.</p>");
                         }
                     });
                 }
             });
 
-            // Submit validation
+            // ⬇️ Form submit validation
             $("form").on("submit", function () {
                 if (!$('#SelectedTime').val() || !$('#AppointmentDate').val()) {
                     alert("Lütfen bir tarih ve saat seçiniz.");
                     return false;
                 }
             });
+
         });
     </script>
 }

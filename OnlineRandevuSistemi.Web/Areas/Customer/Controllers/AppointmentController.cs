@@ -62,8 +62,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
                 Services = (await _serviceService.GetAllServicesAsync())
                     .Select(s => new SelectListItem { Value = s.Id.ToString(), Text = s.Name }).ToList(),
 
-                Employees = (await _employeeService.GetAllEmployeesAsync())
-                    .Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.FirstName + " " + e.LastName }).ToList(),
+                Employees = new List<SelectListItem>(),
 
                 AppointmentDate = DateTime.Now.AddDays(1),
                 Availability = null
@@ -217,16 +216,29 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
             }
         }
         [HttpGet]
-public async Task<IActionResult> GetTimeSlotsForDate(int employeeId, string selectedDate)
-{
-    if (!DateTime.TryParse(selectedDate, out var date))
-        return Content("<p class='text-danger'>Geçersiz tarih</p>");
+        public async Task<IActionResult> GetTimeSlotsForDate(int employeeId, string selectedDate)
+        {
+            if (!DateTime.TryParse(selectedDate, out var date))
+                return Content("<p class='text-danger'>Geçersiz tarih</p>");
 
-    var dailyDto = await _appointmentService.GetDailyAvailabilityAsync(employeeId, date);
-    var slots = dailyDto?.TimeSlots ?? new List<TimeSlotDto>();
+            var dailyDto = await _appointmentService.GetDailyAvailabilityAsync(employeeId, date);
+            var slots = dailyDto?.TimeSlots ?? new List<TimeSlotDto>();
 
-    return PartialView("_TimeSlotPartial", slots);
-}
+            return PartialView("_TimeSlotPartial", slots);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesByServiceId(int serviceId)
+        {
+            var employees = await _employeeService.GetEmployeesByServiceIdAsync(serviceId);
+            var items = employees.Select(e => new SelectListItem
+            {
+                Value = e.Id.ToString(),
+                Text = $"{e.FirstName} {e.LastName}"
+            }).ToList();
+
+            return Json(items);
+        }
 
     }
 }
