@@ -21,24 +21,30 @@ namespace OnlineRandevuSistemi.Business.Services
         private readonly IRepository<Service> _serviceRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+//        private readonly IRedisCacheService _redisCacheService;
 
         public AppointmentService(
             IRepository<Appointment> appointmentRepository,
             IRepository<Employee> employeeRepository,
             IRepository<Service> serviceRepository,
             IUnitOfWork unitOfWork,
-            IMapper mapper)
+            IMapper mapper
+//          IRedisCacheService redisCacheService
+)
         {
             _appointmentRepository = appointmentRepository;
             _employeeRepository = employeeRepository;
             _serviceRepository = serviceRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+//            _redisCacheService = redisCacheService;
         }
 
         public async Task<IEnumerable<AppointmentDto>> GetAllAppointmentsAsync()
         {
-            var appointments = await _appointmentRepository.TableNoTracking
+//          return await _redisCacheService.GetOrSetAppointmentsAsync(async () =>
+//          {
+                var appointments = await _appointmentRepository.TableNoTracking
                 .Where(a => !a.IsDeleted)
                 .Include(a => a.Employee)
                     .ThenInclude(e => e.User)
@@ -47,7 +53,8 @@ namespace OnlineRandevuSistemi.Business.Services
                 .Include(a => a.Service)
                 .ToListAsync();
 
-            return _mapper.Map<IEnumerable<AppointmentDto>>(appointments);
+                return _mapper.Map<IEnumerable<AppointmentDto>>(appointments);
+//            });
         }
 
 
@@ -123,6 +130,8 @@ namespace OnlineRandevuSistemi.Business.Services
             await _appointmentRepository.AddAsync(appointment);
             await _unitOfWork.SaveChangesAsync();
 
+//          await _redisCacheService.ClearCacheAsync("appointments-all");
+
             return _mapper.Map<AppointmentDto>(appointment);
         }
 
@@ -143,6 +152,8 @@ namespace OnlineRandevuSistemi.Business.Services
             await _appointmentRepository.UpdateAsync(appointment);
             await _unitOfWork.SaveChangesAsync();
 
+//          await _redisCacheService.ClearCacheAsync("appointments-all");
+
             return _mapper.Map<AppointmentDto>(appointment);
         }
 
@@ -157,6 +168,8 @@ namespace OnlineRandevuSistemi.Business.Services
 
             await _appointmentRepository.UpdateAsync(appointment);
             await _unitOfWork.SaveChangesAsync();
+
+//          await _redisCacheService.ClearCacheAsync("appointments-all");
 
             return true;
         }
@@ -183,6 +196,8 @@ namespace OnlineRandevuSistemi.Business.Services
 
             await _appointmentRepository.UpdateAsync(appointment);
             await _unitOfWork.SaveChangesAsync();
+
+//          await _redisCacheService.ClearCacheAsync("appointments-all");
 
             return true;
         }

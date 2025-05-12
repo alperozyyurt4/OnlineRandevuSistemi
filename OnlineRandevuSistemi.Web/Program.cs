@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineRandevuSistemi.Business.Interfaces;
 using OnlineRandevuSistemi.Business.Mapping;
@@ -9,13 +9,13 @@ using OnlineRandevuSistemi.DataAccess;
 using OnlineRandevuSistemi.DataAccess.Context;
 using OnlineRandevuSistemi.DataAccess.Repositories;
 using AutoMapper;
-using OnlineRandevuSistemi.Web.Mapping;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Ba�lant� dizesi
+// Bağlantı dizesi
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("DefaultConnection bulunamad�.");
+    ?? throw new InvalidOperationException("DefaultConnection bulunamadı.");
 
 // DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -26,7 +26,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// Yetkisiz y�nlendirme i�lemleri
+// Yetkisiz yönlendirme işlemleri
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Account/Login";
@@ -35,19 +35,27 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
-// Cache
+// Memory Cache (GetPopularServices gibi yapılar için)
 builder.Services.AddMemoryCache();
-if (!builder.Environment.IsDevelopment())
+
+// Redis bağlantısı (StackExchange.Redis ile)
+/*
+try
 {
-    builder.Services.AddStackExchangeRedisCache(options =>
-    {
-        options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
-        options.InstanceName = "OnlineRandevuSistemi_";
-    });
+    var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection")
+        ?? "localhost:6379,abortConnect=false";
+
+    builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
+    builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
 }
+catch (Exception ex)
+{
+    Console.WriteLine("⚠ Redis'e bağlanılamadı. Cache devre dışı. => " + ex.Message);
+}
+*/
 
 // AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile), typeof(WebMappingProfile));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Repository & UnitOfWork
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -64,7 +72,6 @@ builder.Services.AddScoped<ISmsService, DummySmsService>();
 // MVC
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-
 
 var app = builder.Build();
 

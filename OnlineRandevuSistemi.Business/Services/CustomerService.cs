@@ -17,27 +17,34 @@ namespace OnlineRandevuSistemi.Business.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+//        private readonly IRedisCacheService _redisCacheService;
 
         public CustomerService(
             IRepository<Customer> customerRepository,
             UserManager<AppUser> userManager,
             IUnitOfWork unitOfWork,
-            IMapper mapper)
+            IMapper mapper
+//            IRedisCacheService redisCacheService
+            )
         {
             _customerRepository = customerRepository;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+//            _redisCacheService = redisCacheService;
         }
 
         public async Task<IEnumerable<CustomerDto>> GetAllCustomersAsync()
         {
-            var customers = await _customerRepository.TableNoTracking
-                .Where(c => !c.IsDeleted)
-                .Include(c => c.User)
-                .ToListAsync();
+//            return await _redisCacheService.GetOrSetCustomersAsync(async () =>
+//            {
+                var customers = await _customerRepository.TableNoTracking
+                    .Where(c => !c.IsDeleted)
+                    .Include(c => c.User)
+                    .ToListAsync();
 
-            return _mapper.Map<IEnumerable<CustomerDto>>(customers);
+                return _mapper.Map<IEnumerable<CustomerDto>>(customers);
+//          });
         }
 
         public async Task<CustomerDto> GetCustomerByIdAsync(int id)
@@ -63,6 +70,9 @@ namespace OnlineRandevuSistemi.Business.Services
             var customer = _mapper.Map<Customer>(customerDto);
             await _customerRepository.AddAsync(customer);
             await _unitOfWork.SaveChangesAsync();
+
+//            await _redisCacheService.ClearCacheAsync("customers-all");
+
             return _mapper.Map<CustomerDto>(customer);
         }
         public async Task<CustomerDto> UpdateCustomerAsync(CustomerDto customerDto)
@@ -99,6 +109,9 @@ namespace OnlineRandevuSistemi.Business.Services
             await _customerRepository.UpdateAsync(customer);
             await _unitOfWork.SaveChangesAsync();
 
+//            await _redisCacheService.ClearCacheAsync("customers-all");
+
+
             return _mapper.Map<CustomerDto>(customer);
         }
 
@@ -126,6 +139,10 @@ namespace OnlineRandevuSistemi.Business.Services
 
             await _customerRepository.DeleteAsync(id);
             await _unitOfWork.SaveChangesAsync();
+
+//            await _redisCacheService.ClearCacheAsync("customers-all");
+
+
             return true;
         }
     }

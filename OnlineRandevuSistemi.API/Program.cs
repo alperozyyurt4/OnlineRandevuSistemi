@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+ï»¿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -12,15 +12,16 @@ using OnlineRandevuSistemi.DataAccess.Context;
 using OnlineRandevuSistemi.DataAccess.Repositories;
 using System.Text;
 using AutoMapper;
+using StackExchange.Redis; // âœ… Redis iÃ§in eklendi
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ?? Baðlantý
+// ?? BaÄŸlantÄ±
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// ?? Identity yapýlandýrmasý
+// ?? Identity yapÄ±landÄ±rmasÄ±
 builder.Services.AddIdentityCore<AppUser>(options =>
 {
     options.Password.RequireDigit = false;
@@ -31,7 +32,7 @@ builder.Services.AddIdentityCore<AppUser>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// ?? JWT Ayarlarý
+// ?? JWT AyarlarÄ±
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -48,6 +49,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// âœ… Redis BaÄŸlantÄ±sÄ±
+/*
+try
+{
+    var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection")
+        ?? "localhost:6379,abortConnect=false";
+
+    builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
+    builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
+}
+catch (Exception ex)
+{
+    Console.WriteLine("âš  Redis'e baÄŸlanÄ±lamadÄ±. Cache devre dÄ±ÅŸÄ±. => " + ex.Message);
+}
+*/
+
 // ?? Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -58,11 +75,11 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1"
     });
 
-    // Swagger'da "Authorize" butonu için
+    // Swagger'da "Authorize" butonu iÃ§in
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
-        Description = "Bearer {token} formatýnda JWT girin.",
+        Description = "Bearer {token} formatÄ±nda JWT girin.",
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
@@ -84,15 +101,14 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// ?? Diðer servisler
-builder.Services.AddMemoryCache();
+// ?? DiÄŸer servisler
+builder.Services.AddMemoryCache(); // ServiceService iÃ§inde GetPopular gibi yerler iÃ§in hÃ¢lÃ¢ aktif olabilir
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IEmployeeService, OnlineRandevuSistemi.Business.Services.EmployeeService>();
-// CustomerService için UserManager artýk çözülebilir:
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 builder.Services.AddControllers();
@@ -107,7 +123,7 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Online Randevu Sistemi API v1");
 });
 
-app.UseAuthentication(); // JWT çalýþsýn diye
+app.UseAuthentication(); // JWT Ã§alÄ±ÅŸsÄ±n diye
 app.UseAuthorization();
 
 app.MapControllers();

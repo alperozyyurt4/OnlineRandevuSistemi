@@ -20,6 +20,7 @@ namespace OnlineRandevuSistemi.Business.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IRepository<WorkingHour> _workingHourRepository;
+//        private readonly IRedisCacheService _redisCacheService;
 
         public EmployeeService(
             IRepository<Employee> employeeRepository,
@@ -28,6 +29,7 @@ namespace OnlineRandevuSistemi.Business.Services
             IUnitOfWork unitOfWork,
             IMapper mapper,
             IRepository<WorkingHour> workingHourRepository
+//            IRedisCacheService redisCacheService
 
             )
         {
@@ -37,17 +39,21 @@ namespace OnlineRandevuSistemi.Business.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _workingHourRepository = workingHourRepository;
+//            _redisCacheService = redisCacheService;
         }
 
         public async Task<IEnumerable<EmployeeDto>> GetAllEmployeesAsync()
         {
-            var employees = await _employeeRepository.TableNoTracking
-                .Include(e => e.User)
-                .Where(e => !e.IsDeleted)
-                .Include(e => e.EmployeeServices)
-                .ToListAsync();
+//            return await _redisCacheService.GetOrSetEmployeesAsync(async () =>
+//            {
+                var employees = await _employeeRepository.TableNoTracking
+              .Include(e => e.User)
+              .Where(e => !e.IsDeleted)
+              .Include(e => e.EmployeeServices)
+              .ToListAsync();
 
-            return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+                return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+//            });
         }
 
         public async Task<EmployeeDto> GetEmployeeByIdAsync(int id)
@@ -126,6 +132,9 @@ namespace OnlineRandevuSistemi.Business.Services
 
             await _unitOfWork.SaveChangesAsync();
 
+//            await _redisCacheService.ClearCacheAsync("employees-all");
+
+
             return _mapper.Map<EmployeeDto>(employee);
         }
         public async Task<EmployeeDto> UpdateEmployeeAsync(EmployeeDto employeeDto)
@@ -185,6 +194,9 @@ namespace OnlineRandevuSistemi.Business.Services
             await _employeeRepository.UpdateAsync(employee);
             await _unitOfWork.SaveChangesAsync();
 
+//            await _redisCacheService.ClearCacheAsync("employees-all");
+
+
             return _mapper.Map<EmployeeDto>(employee);
         }
 
@@ -213,6 +225,10 @@ namespace OnlineRandevuSistemi.Business.Services
 
             await _employeeRepository.UpdateAsync(employee);
             await _unitOfWork.SaveChangesAsync();
+
+//            await _redisCacheService.ClearCacheAsync("employees-all");
+
+
             return true;
         }
 
