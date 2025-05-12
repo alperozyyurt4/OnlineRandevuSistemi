@@ -71,6 +71,9 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IEmailService, DummyEmailService>();
 builder.Services.AddScoped<ISmsService, DummySmsService>();
 
+//Background Services
+builder.Services.AddHostedService<AppointmentReminderService>();
+
 // MVC
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

@@ -420,14 +420,14 @@ namespace OnlineRandevuSistemi.Business.Services
                 .Include(a => a.Employee)
                 .ThenInclude(e => e.User)
                 .FirstOrDefaultAsync(a => a.Id == appointmentId);
-            /*
+            
             if (appointment == null || appointment.ReminderSent)
                 return;
-            */
-
+            
+            /*
             if (appointment == null)
                 return;
-
+            */
             await _emailService.SendAsync(
                 appointment.Customer.User.Email,
                 "Randevu Hatırlatma",
@@ -438,8 +438,15 @@ namespace OnlineRandevuSistemi.Business.Services
                 appointment.Customer.User.PhoneNumber,
                 "Yaklaşan randevunuz var unutmayın"
                 );
-            // Send reminder logic (e-mail, SMS, etc.) would be implemented here
-            // For now, just mark as sent
+
+            await _notificationRepository.AddAsync(new Notification()
+            {
+                UserId = appointment.Customer.User.Id,
+                AppointmentId = appointment.Id,
+                Title = "Randevu Hatırlatım",
+                Message = $"{appointment.AppointmentDate:dd.MM.yyyy HH:mm} tarihli randevunuz için hatırlatma"
+            });
+
             appointment.ReminderSent = true;
             await _appointmentRepository.UpdateAsync(appointment);
             await _unitOfWork.SaveChangesAsync();

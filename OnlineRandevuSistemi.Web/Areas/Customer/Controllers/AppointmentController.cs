@@ -94,11 +94,20 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CustomerAppointmentCreateViewModel model)
         {
-            if (model.AppointmentDate < DateTime.Now)
+            if (DateTime.TryParse($"{model.AppointmentDate:yyyy-MM-dd} {model.SelectedTime}", out var selectedDateTime))
             {
-                ModelState.AddModelError("Appointment Date", "Geçmiş bir tarih seçilemez");
+                if (selectedDateTime < DateTime.Now)
+                {
+                    ModelState.AddModelError("Appointment Date", "Geçmiş bir tarih seçilemez");
 
+                }
             }
+            else
+            {
+                ModelState.AddModelError("AppointmentDate", "Geçerli bir tarih  ve saat seçmelisiniz.");
+            }
+
+          
 
             if (!ModelState.IsValid)
             {
