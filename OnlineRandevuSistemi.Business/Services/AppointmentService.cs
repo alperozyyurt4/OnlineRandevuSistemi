@@ -21,6 +21,8 @@ namespace OnlineRandevuSistemi.Business.Services
         private readonly IRepository<Service> _serviceRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ISmsService _smsService;
+        private readonly IEmailService _emailService;
 //        private readonly IRedisCacheService _redisCacheService;
 
         public AppointmentService(
@@ -28,7 +30,10 @@ namespace OnlineRandevuSistemi.Business.Services
             IRepository<Employee> employeeRepository,
             IRepository<Service> serviceRepository,
             IUnitOfWork unitOfWork,
-            IMapper mapper
+            IMapper mapper,
+            ISmsService smsService,
+            IEmailService emailService
+
 //          IRedisCacheService redisCacheService
 )
         {
@@ -37,7 +42,9 @@ namespace OnlineRandevuSistemi.Business.Services
             _serviceRepository = serviceRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-//            _redisCacheService = redisCacheService;
+            _smsService = smsService;
+            _emailService = emailService;
+            //            _redisCacheService = redisCacheService;
         }
 
         public async Task<IEnumerable<AppointmentDto>> GetAllAppointmentsAsync()
@@ -247,10 +254,24 @@ namespace OnlineRandevuSistemi.Business.Services
                 .Include(a => a.Employee)
                 .ThenInclude(e => e.User)
                 .FirstOrDefaultAsync(a => a.Id == appointmentId);
-
+            /*
             if (appointment == null || appointment.ReminderSent)
                 return;
+            */
 
+            if (appointment == null)
+                return;
+
+            await _emailService.SendAsync(
+                appointment.Customer.User.Email,
+                "Randevu Hatırlatma",
+                $"{appointment.AppointmentDate:dd-MM-yyyy HH:mm} tarihli randevunuz yaklaşıyor"
+             );
+
+            await _smsService.SendAsync(
+                appointment.Customer.User.PhoneNumber,
+                "Yaklaşan randevunuz var unutmayın"
+                );
             // Send reminder logic (e-mail, SMS, etc.) would be implemented here
             // For now, just mark as sent
             appointment.ReminderSent = true;

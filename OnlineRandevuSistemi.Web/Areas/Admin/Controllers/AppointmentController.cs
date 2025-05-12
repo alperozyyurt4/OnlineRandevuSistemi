@@ -341,5 +341,13 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
 
             return PartialView("_TimeSlotPartial", slots);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> SendReminder(int id)
+        {
+            await _appointmentService.SendAppointmentReminderAsync(id);
+            TempData["Success"] = "Hatırlatma bildirimi gönderildi";
+            return RedirectToAction("Index");
+        }
     }
 }

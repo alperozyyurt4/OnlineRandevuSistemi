@@ -68,13 +68,17 @@
                                         </a>
                                         <a class="btn btn-outline-primary" asp-action="Edit" asp-area="Admin" asp-route-id="@item.Id">
                                             <i class="bi bi-pencil-square me-1"></i>  Düzenle
-                                        </a><form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                                        </a>
+                                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
                                             <button type="submit" class="btn btn-outline-danger btn-sm"
                                                     onclick="return confirm('Bu randevuyu silmek istediğinizden emin misiniz?');">
                                                 <i class="bi bi-trash me-1"></i> Sil
                                             </button>
                                         </form>
+                                        <a asp-action="SendReminder" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                            Hatırlat
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
