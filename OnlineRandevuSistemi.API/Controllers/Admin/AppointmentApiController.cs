@@ -58,13 +58,61 @@ namespace OnlineRandevuSistemi.API.Controllers.Admin
                 return NotFound();
             return Ok(appointment);
         }
-
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AppointmentCreateDto dto)
         {
+
+            dto.AppointmentDate = new DateTime(
+                dto.AppointmentDate.Year,
+                dto.AppointmentDate.Month,
+                dto.AppointmentDate.Day,
+                dto.AppointmentDate.Hour,
+                dto.AppointmentDate.Minute,
+                0
+                );
+            // 1. Geçmiş tarih kontrolü
             if (dto.AppointmentDate < DateTime.Now)
                 return BadRequest("Geçmiş bir tarihe randevu oluşturulamaz.");
 
+            // 2. SLOT kontrolü: Yalnızca 30 dakikalık aralıklara izin ver
+            var minute = dto.AppointmentDate.Minute;
+            if (minute % 30 != 0)
+                return BadRequest("Randevular yalnızca 30 dakikalık dilimlerde alınabilir (örn: 09:00, 09:30)");
+
+            // 3. Çalışan kontrolü
+            var employee = await _employeeService.GetEmployeeByIdAsync(dto.EmployeeId);
+            if (employee == null)
+                return NotFound("Çalışan bulunamadı.");
+
+            var workingHour = employee.WorkingHours
+                .FirstOrDefault(w => w.DayOfWeek == dto.AppointmentDate.DayOfWeek && w.IsWorkingDay);
+
+            if (workingHour == null)
+                return BadRequest("Seçilen gün çalışan çalışmıyor.");
+
+            // 4. Hizmet süresi kontrolü
+            var service = await _serviceService.GetServiceByIdAsync(dto.ServiceId);
+            int duration = service?.DurationMinutes ?? 30;
+
+            var appointmentStart = dto.AppointmentDate.TimeOfDay;
+            var appointmentEnd = appointmentStart + TimeSpan.FromMinutes(duration);
+
+            // 5. Çalışma saatleri içinde mi?
+            if (appointmentStart < workingHour.StartTime || appointmentEnd > workingHour.EndTime)
+                return BadRequest("Seçilen saat, çalışanın çalışma saatleri dışında.");
+
+            // 6. Mevcut randevularla çakışma kontrolü
+            var existingAppointments = await _appointmentService.GetAppointmentsByEmployeeIdAsync(dto.EmployeeId);
+            bool isConflicting = existingAppointments.Any(a =>
+                a.AppointmentDate.Date == dto.AppointmentDate.Date &&
+                dto.AppointmentDate < a.AppointmentEndTime &&
+                dto.AppointmentDate.AddMinutes(duration) > a.AppointmentDate
+            );
+
+            if (isConflicting)
+                return BadRequest("Seçilen saat diliminde bu çalışanın başka bir randevusu var.");
+
+            // 7. Oluştur
             try
             {
                 await _appointmentService.CreateAppointmentAsync(dto);
@@ -76,7 +124,6 @@ namespace OnlineRandevuSistemi.API.Controllers.Admin
                 return StatusCode(500, "Sunucu hatası.");
             }
         }
-
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] AppointmentUpdateDto dto)
         {
