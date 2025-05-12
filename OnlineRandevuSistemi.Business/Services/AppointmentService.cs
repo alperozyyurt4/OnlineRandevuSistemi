@@ -23,6 +23,8 @@ namespace OnlineRandevuSistemi.Business.Services
         private readonly IMapper _mapper;
         private readonly ISmsService _smsService;
         private readonly IEmailService _emailService;
+        private readonly IRepository<Notification> _notificationRepository;
+        private readonly IRepository<Customer> _customerRepository;
 //        private readonly IRedisCacheService _redisCacheService;
 
         public AppointmentService(
@@ -32,7 +34,10 @@ namespace OnlineRandevuSistemi.Business.Services
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ISmsService smsService,
-            IEmailService emailService
+            IEmailService emailService,
+            IRepository<Notification> notificationRepository,
+            IRepository<Customer> customerRepository
+
 
 //          IRedisCacheService redisCacheService
 )
@@ -44,6 +49,8 @@ namespace OnlineRandevuSistemi.Business.Services
             _mapper = mapper;
             _smsService = smsService;
             _emailService = emailService;
+            _notificationRepository = notificationRepository;
+            _customerRepository = customerRepository;
             //            _redisCacheService = redisCacheService;
         }
 
@@ -129,15 +136,56 @@ namespace OnlineRandevuSistemi.Business.Services
             if (service == null)
                 throw new Exception("Service not found");
 
-            // Calculate end time based on service duration
+            // Appointment oluştur
             var appointment = _mapper.Map<Appointment>(appointmentDto);
             appointment.AppointmentEndTime = appointment.AppointmentDate.AddMinutes(service.DurationMinutes);
             appointment.Price = service.Price;
 
             await _appointmentRepository.AddAsync(appointment);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(); // ID oluşsun diye önce kaydediyoruz
 
-//          await _redisCacheService.ClearCacheAsync("appointments-all");
+            // Customer → AppUser ilişkisinden UserId al
+            var customer = await _customerRepository.TableNoTracking
+                .FirstOrDefaultAsync(c => c.Id == appointment.CustomerId);
+
+            if (customer != null)
+            {
+                await _notificationRepository.AddAsync(new Notification
+                {
+                    UserId = customer.UserId,
+                    AppointmentId = appointment.Id,
+                    Title = "Randevu Oluşturuldu",
+                    Message = $"{appointment.AppointmentDate:dd.MM.yyyy HH:mm} tarihli randevunuz başarıyla oluşturuldu.",
+                    Type = NotificationType.Appointment,
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                });
+
+                await _unitOfWork.SaveChangesAsync(); // 🔥 Notification'ı kaydet
+            }
+            var employee = await _employeeRepository.TableNoTracking
+                .Include(e => e.User)
+                .FirstOrDefaultAsync(e => e.Id == appointment.EmployeeId);
+
+            if (employee != null)
+            {
+                await _notificationRepository.AddAsync(new Notification()
+                {
+                    UserId = employee.User.Id,
+                    AppointmentId = appointment.Id,
+                    Title = "Yeni bir randevu atandı",
+                    Message = $"{appointment.AppointmentDate:dd:MM:yyyy HH:mm} tarihli bir randevu size atandı",
+                    Type = NotificationType.Appointment,
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                });
+                await _unitOfWork.SaveChangesAsync(); // 🔥 Notification'ı kaydet
+
+            }
+
+
+            //          await _redisCacheService.ClearCacheAsync("appointments-all");
+
 
             return _mapper.Map<AppointmentDto>(appointment);
         }
@@ -159,11 +207,50 @@ namespace OnlineRandevuSistemi.Business.Services
             await _appointmentRepository.UpdateAsync(appointment);
             await _unitOfWork.SaveChangesAsync();
 
-//          await _redisCacheService.ClearCacheAsync("appointments-all");
+            var customer = await _customerRepository.TableNoTracking
+                .FirstOrDefaultAsync(c => c.Id == appointment.CustomerId);
+
+            var employee = await _employeeRepository.TableNoTracking
+                .Include(e => e.User)
+                .FirstOrDefaultAsync(e => e.Id == appointment.EmployeeId);
+
+            if (customer != null)
+            {
+                await _notificationRepository.AddAsync(new Notification
+                {
+                    UserId = customer.UserId,
+                    AppointmentId = appointment.Id,
+                    Title = "Randevu Detayları Güncellendi",
+                    Message = $"{appointment.AppointmentDate:dd.MM.yyyy HH:mm} tarihli randevunuz güncellendi.",
+                    Type = NotificationType.Appointment,
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                });
+
+                await _unitOfWork.SaveChangesAsync(); // 🔥 Notification'ı kaydet
+            }
+
+            if (employee != null)
+            {
+                await _notificationRepository.AddAsync(new Notification()
+                {
+                    UserId = employee.User.Id,
+                    AppointmentId = appointment.Id,
+                    Title = "Randevu Detayları Güncellendi",
+                    Message = $"{appointment.AppointmentDate:dd:MM:yyyy HH:mm} tarihli bir randevunuz güncellendi.",
+                    Type = NotificationType.Appointment,
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                });
+                await _unitOfWork.SaveChangesAsync(); // 🔥 Notification'ı kaydet
+
+            }
+
+
+            //          await _redisCacheService.ClearCacheAsync("appointments-all");
 
             return _mapper.Map<AppointmentDto>(appointment);
         }
-
         public async Task<bool> DeleteAppointmentAsync(int id)
         {
             var appointment = await _appointmentRepository.GetByIdAsync(id);
@@ -176,7 +263,48 @@ namespace OnlineRandevuSistemi.Business.Services
             await _appointmentRepository.UpdateAsync(appointment);
             await _unitOfWork.SaveChangesAsync();
 
-//          await _redisCacheService.ClearCacheAsync("appointments-all");
+            // Bildirim ekle (iptal bildirimi)
+            var customer = await _customerRepository.TableNoTracking
+                .FirstOrDefaultAsync(c => c.Id == appointment.CustomerId);
+            var employee = await _employeeRepository.TableNoTracking
+             .Include(e => e.User)
+             .FirstOrDefaultAsync(e => e.Id == appointment.EmployeeId);
+
+
+            if (customer != null)
+            {
+                await _notificationRepository.AddAsync(new Notification
+                {
+                    UserId = customer.UserId,
+                    AppointmentId = appointment.Id,
+                    Title = "Randevu İptal Edildi",
+                    Message = $"{appointment.AppointmentDate:dd.MM.yyyy HH:mm} tarihli randevunuz iptal edilmiştir.",
+                    Type = NotificationType.Cancellation,
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                });
+
+                await _unitOfWork.SaveChangesAsync(); // Bildirimi kaydet
+            }
+            if (employee != null)
+            {
+                await _notificationRepository.AddAsync(new Notification()
+                {
+                    UserId = employee.User.Id,
+                    AppointmentId = appointment.Id,
+                    Title = "Randevu İptal Edildi",
+                    Message = $"{appointment.AppointmentDate:dd:MM:yyyy HH:mm} tarihli randevunuz iptal edildi.",
+                    Type = NotificationType.Appointment,
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                });
+                await _unitOfWork.SaveChangesAsync(); // 🔥 Notification'ı kaydet
+
+            }
+
+
+            //          await _redisCacheService.ClearCacheAsync("appointments-all");
+
 
             return true;
         }
@@ -203,8 +331,46 @@ namespace OnlineRandevuSistemi.Business.Services
 
             await _appointmentRepository.UpdateAsync(appointment);
             await _unitOfWork.SaveChangesAsync();
+            var customer = await _customerRepository.TableNoTracking
+              .FirstOrDefaultAsync(c => c.Id == appointment.CustomerId);
 
-//          await _redisCacheService.ClearCacheAsync("appointments-all");
+            var employee = await _employeeRepository.TableNoTracking
+                .Include(e => e.User)
+                .FirstOrDefaultAsync(e => e.Id == appointment.EmployeeId);
+
+            if (customer != null)
+            {
+                await _notificationRepository.AddAsync(new Notification
+                {
+                    UserId = customer.UserId,
+                    AppointmentId = appointment.Id,
+                    Title = "Randevu Durumu Güncellendi",
+                    Message = $"{appointment.AppointmentDate:dd.MM.yyyy HH:mm} tarihli randevunuzun durumu güncellendi.",
+                    Type = NotificationType.Appointment,
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                });
+
+                await _unitOfWork.SaveChangesAsync(); // 🔥 Notification'ı kaydet
+            }
+
+            if (employee != null)
+            {
+                await _notificationRepository.AddAsync(new Notification()
+                {
+                    UserId = employee.User.Id,
+                    AppointmentId = appointment.Id,
+                    Title = "Randevu Durumu Güncellendi",
+                    Message = $"{appointment.AppointmentDate:dd:MM:yyyy HH:mm} tarihli randevunuzun durumu güncellendi.",
+                    Type = NotificationType.Appointment,
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                });
+                await _unitOfWork.SaveChangesAsync(); // 🔥 Notification'ı kaydet
+
+            }
+
+            //          await _redisCacheService.ClearCacheAsync("appointments-all");
 
             return true;
         }

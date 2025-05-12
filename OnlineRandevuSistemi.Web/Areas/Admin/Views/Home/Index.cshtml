@@ -8,7 +8,8 @@
 <div class="container py-4">
     <h2 class="text-center fw-bold mb-5">🛠️ Yönetim Paneli</h2>
 
-    <div class="row g-4">
+    <!-- İstatistik Kartları -->
+    <div class="row g-4 mb-4">
         <div class="col-md-3 col-sm-6">
             <a asp-area="Admin" asp-controller="Service" asp-action="Index" class="text-decoration-none">
                 <div class="card bg-primary text-white shadow-sm hover-shadow">
@@ -56,28 +57,53 @@
                 </div>
             </a>
         </div>
+    </div>
 
-        <div class="col-md-6 col-sm-6">
-            <div class="card bg-secondary text-white shadow-sm">
-                <div class="card-body text-center">
+    <!-- Durumlar + Bildirim Gönder -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4 col-sm-12">
+            <div class="card bg-secondary text-white shadow-sm text-center">
+                <div class="card-body">
                     <i class="bi bi-hourglass-split display-6"></i>
                     <h6 class="mt-2 fw-semibold">Bekleyen Randevu</h6>
                     <h3>@Model.PendingAppointments</h3>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-6 col-sm-6">
-            <div class="card bg-dark text-white shadow-sm">
-                <div class="card-body text-center">
+        <div class="col-md-4 col-sm-12">
+            <div class="card bg-dark text-white shadow-sm text-center">
+                <div class="card-body">
                     <i class="bi bi-check2-circle display-6"></i>
                     <h6 class="mt-2 fw-semibold">Onaylı Randevu</h6>
                     <h3>@Model.ConfirmedAppointments</h3>
                 </div>
             </div>
         </div>
+        <div class="col-md-4 col-sm-12">
+            <a asp-area="Admin" asp-controller="Notification" asp-action="Create" class="text-decoration-none">
+                <div class="card bg-danger text-white shadow-sm hover-shadow text-center">
+                    <div class="card-body">
+                        <i class="bi bi-megaphone-fill display-6"></i>
+                        <h6 class="mt-2 fw-semibold">Bildirim Gönder</h6>
+                        <h3 class="fs-5">Yeni Duyuru</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <a asp-area="Admin" asp-controller="Notification" asp-action="Index" class="text-decoration-none">
+                <div class="card bg-danger text-white shadow-sm hover-shadow">
+                    <div class="card-body text-center">
+                        <i class="bi bi-journal-text display-6"></i>
+                        <h6 class="mt-2 fw-semibold">Bildirim Geçmişi</h6>
+                        <h3 class="fs-5">Gönderilenler</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
 
+    <!-- Popüler Hizmetler -->
     @if (Model.PopularServices != null && Model.PopularServices.Any())
     {
         <div class="card mt-5 shadow-sm">

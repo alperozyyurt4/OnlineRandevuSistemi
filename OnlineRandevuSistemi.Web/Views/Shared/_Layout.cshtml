@@ -43,9 +43,13 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="Customer" asp-controller="Appointment" asp-action="Create">Randevu Al</a>
                                 </li>
+                                 <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Customer" asp-controller="Notification" asp-action="Index">Bildirimler</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="Customer" asp-controller="Customer" asp-action="Profile">Profilim</a>
                                 </li>
+                               
                             }
                          
                                 if (User.IsInRole("Employee"))
@@ -63,6 +67,9 @@
                                     <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="Employee" asp-controller="Appointment" asp-action="Past">Geçmiş Randevular</a>
                                     </li>
+                                <li>
+                                    <a class="nav-link text-dark" asp-area="Employee" asp-controller="Notification" asp-action="Index">Bildirimlerim</a>
+                                </li>
                                     <li>
                                     <a class="nav-link text-dark" asp-area="Employee" asp-controller="Profile" asp-action="Edit">Profilim</a>
                                     </li>

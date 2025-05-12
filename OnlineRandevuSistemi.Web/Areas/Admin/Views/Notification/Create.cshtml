@@ -1,0 +1,66 @@
+﻿@model OnlineRandevuSistemi.Web.ViewModels.NotificationCreateViewModel
+@using OnlineRandevuSistemi.Core.Enums
+
+@{
+    ViewData["Title"] = "Yeni Bildirim Gönder";
+    Layout = "_Layout";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0"><i class="bi bi-megaphone-fill me-2"></i>Yeni Bildirim Oluştur</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-semibold">Başlık</label>
+                            <input asp-for="Title" class="form-control" placeholder="Bildirim başlığı girin" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Message" class="form-label fw-semibold">Mesaj</label>
+                            <textarea asp-for="Message" rows="4" class="form-control" placeholder="Bildirim içeriği..."></textarea>
+                            <span asp-validation-for="Message" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Type" class="form-label fw-semibold">Bildirim Türü</label>
+                            <select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<NotificationType>()">
+                                <option disabled selected>Seçiniz...</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="TargetRole" class="form-label fw-semibold">Hedef Kitle</label>
+                            <select asp-for="TargetRole" class="form-select">
+                                <option value="Customer">🔵 Sadece Müşteriler</option>
+                                <option value="Employee">🟢 Sadece Çalışanlar</option>
+                                <option value="All">🟣 Tüm Kullanıcılar</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-send-check me-1"></i> Bildirimi Gönder
+                            </button>
+                        </div>
+                    </form>
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success mt-4 text-center">
+                            <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

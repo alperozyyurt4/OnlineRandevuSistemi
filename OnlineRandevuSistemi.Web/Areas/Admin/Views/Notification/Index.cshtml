@@ -1,0 +1,43 @@
+﻿@model List<OnlineRandevuSistemi.Core.Entities.Notification>
+
+@{
+    ViewData["Title"] = "Bildirim Geçmişi";
+    Layout = "_Layout";
+}
+
+<div class="container py-4">
+    <h2 class="text-center fw-bold mb-4">📜 Gönderilen Bildirimler</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">Henüz gönderilmiş bir bildirim yok.</div>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover shadow-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>Tarih</th>
+                    <th>Kullanıcı</th>
+                    <th>Başlık</th>
+                    <th>Mesaj</th>
+                    <th>Tür</th>
+                    <th>Okundu mu</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var n in Model)
+                {
+                    <tr class="@(n.IsRead ? "" : "table-warning")">
+                        <td>@n.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@(n.User != null ? n.User.FirstName + " " + n.User.LastName : "-")</td>
+                        <td>@n.Title</td>
+                        <td>@n.Message</td>
+                        <td>@n.Type.ToString()</td>
+                        <td>@(n.IsRead ? "Okundu" : "Okunmadı")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OnlineRandevuSistemi.Business.DTOs;
 using OnlineRandevuSistemi.Business.Interfaces;
 using OnlineRandevuSistemi.Core.Entities;
+using OnlineRandevuSistemi.Core.Enums;
 using OnlineRandevuSistemi.Core.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace OnlineRandevuSistemi.Business.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IRepository<WorkingHour> _workingHourRepository;
+        private readonly IRepository<Notification> _notificationRepository;
 //        private readonly IRedisCacheService _redisCacheService;
 
         public EmployeeService(
@@ -28,8 +30,9 @@ namespace OnlineRandevuSistemi.Business.Services
             IRepository<Service> serviceRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper,
-            IRepository<WorkingHour> workingHourRepository
-//            IRedisCacheService redisCacheService
+            IRepository<WorkingHour> workingHourRepository,
+            IRepository<Notification> notificationRepository
+            //            IRedisCacheService redisCacheService
 
             )
         {
@@ -39,6 +42,7 @@ namespace OnlineRandevuSistemi.Business.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _workingHourRepository = workingHourRepository;
+            _notificationRepository = notificationRepository;
 //            _redisCacheService = redisCacheService;
         }
 
@@ -249,6 +253,27 @@ namespace OnlineRandevuSistemi.Business.Services
 
             await _employeeServiceRepository.AddAsync(relation);
             await _unitOfWork.SaveChangesAsync();
+
+            var employee = await _employeeRepository.TableNoTracking
+                .Include(e => e.User)
+                .FirstOrDefaultAsync(e => e.Id == employeeId);
+            var service = await _serviceRepository.GetByIdAsync(serviceId);
+
+            if (employee != null && service != null)
+            {
+                await _notificationRepository.AddAsync(new Notification()
+                {
+                    UserId = employee.User.Id,
+                    Title = "Yeni Hizmet Ataması",
+                    Message = $"Size \"{service.Name}\" hizmeti atanmıştır.",
+                    Type = NotificationType.System,
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                });
+                await _unitOfWork.SaveChangesAsync();
+
+            }
+
             return true;
         }
 

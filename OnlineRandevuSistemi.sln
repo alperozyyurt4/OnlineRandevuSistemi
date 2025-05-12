@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineRandevuSistemi.Busine
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineRandevuSistemi.Tests", "OnlineRandevuSistemi.Tests\OnlineRandevuSistemi.Tests.csproj", "{15C30C0F-E9EF-4F87-9DB8-9F3D82B64DCB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineRandevuSistemi.Api", "OnlineRandevuSistemi.Api\OnlineRandevuSistemi.Api.csproj", "{C58936B9-38CD-4F7D-A2CE-B21812CDABDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineRandevuSistemi.Api", "OnlineRandevuSistemi.Api\OnlineRandevuSistemi.Api.csproj", "{C58936B9-38CD-4F7D-A2CE-B21812CDABDA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

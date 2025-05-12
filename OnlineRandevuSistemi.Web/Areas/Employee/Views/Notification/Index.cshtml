@@ -1,0 +1,56 @@
+﻿@model List<OnlineRandevuSistemi.Core.Entities.Notification>
+
+@{
+    ViewData["Title"] = "Bildirimlerim";
+    Layout = "_Layout";
+}
+
+<div class="container py-4">
+    <h2 class="text-center fw-bold mb-4">🔔 Bildirimlerim</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">Hiç bildiriminiz yok.</div>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover shadow-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>Tarih</th>
+                    <th>Başlık</th>
+                    <th>Mesaj</th>
+                    <th>Tür</th>
+                    <th>Durum</th>
+                    <th>Aksiyon</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="@(item.IsRead ? "" : "table-warning")">
+                        <td>@item.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@item.Title</td>
+                        <td>@item.Message</td>
+                        <td>@item.Type.ToString()</td>
+                        <td>@(item.IsRead ? "Okundu" : "Okunmadı")</td>
+                        <td>
+                            @if (!item.IsRead)
+                            {
+                                <form method="post" asp-action="MarkAsRead" asp-route-id="@item.Id" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit" class="btn btn-sm btn-outline-success">✔ Okundu</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-muted">✔</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
