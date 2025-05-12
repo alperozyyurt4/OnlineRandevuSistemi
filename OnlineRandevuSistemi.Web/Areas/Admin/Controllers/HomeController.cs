@@ -32,6 +32,30 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
         {
             var appointments = await _appointmentService.GetAllAppointmentsAsync();
 
+            var popularServiceGroup = appointments
+                .GroupBy(x => x.ServiceId)
+                .OrderByDescending(g => g.Count())
+                .Take(5)
+                .ToList();
+
+            var popularServices = new List<PopularServiceViewModel>();
+
+            foreach (var group in popularServiceGroup)
+            {
+                var service = await _serviceService.GetServiceByIdAsync(group.Key);
+                if (service != null)
+                {
+                    popularServices.Add(new PopularServiceViewModel
+                    {
+                        Id = service.Id,
+                        Name = service.Name,
+                        AppointmentCount = group.Count(),
+                    });
+                    
+                }
+
+            }
+
             var model = new AdminDashboardViewModel
             {
                 TotalAppointments = appointments.Count(),
@@ -40,7 +64,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 TotalCustomers = (await _customerService.GetAllCustomersAsync()).Count(),
                 TotalEmployees = (await _employeeService.GetAllEmployeesAsync()).Count(),
                 TotalServices = (await _serviceService.GetAllServicesAsync()).Count(),
-                PopularServices = await _serviceService.GetPopularServicesAsync() // 💡 Yeni satır
+                PopularServices = popularServices
             };
 
             return View(model);

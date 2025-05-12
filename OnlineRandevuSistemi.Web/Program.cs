@@ -58,6 +58,8 @@ builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IEmployeeService, OnlineRandevuSistemi.Business.Services.EmployeeService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IEmailService, DummyEmailService>();
+builder.Services.AddScoped<ISmsService, DummySmsService>();
 
 // MVC
 builder.Services.AddControllersWithViews();

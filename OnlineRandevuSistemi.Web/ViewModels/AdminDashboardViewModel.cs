@@ -10,6 +10,6 @@ namespace OnlineRandevuSistemi.Web.ViewModels
         public int TotalAppointments { get; set; }
         public int ConfirmedAppointments { get; set; }
         public int PendingAppointments { get; set; }
-        public List<ServiceDto> PopularServices { get; set; } = new();
+        public List<PopularServiceViewModel> PopularServices { get; set; }
     }
 }
