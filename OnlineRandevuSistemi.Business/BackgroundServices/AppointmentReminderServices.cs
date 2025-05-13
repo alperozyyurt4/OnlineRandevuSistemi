@@ -38,8 +38,7 @@ public class AppointmentReminderService : BackgroundService
                         .Include(a => a.Employee).ThenInclude(e => e.User)
                         .Where(a =>
                             !a.IsDeleted &&
-                            a.Status == AppointmentStatus.Confirmed &&
-                            a.ReminderSent == false &&
+                            a.Status == AppointmentStatus.Confirmed &&  // Sadece confirmed olan randevular
                             a.AppointmentDate > now &&
                             a.AppointmentDate <= range)
                         .ToListAsync();
@@ -55,7 +54,7 @@ public class AppointmentReminderService : BackgroundService
                 }
             }
 
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken); // 1 saatte bir tekrar et
+            await Task.Delay(TimeSpan.FromHours(1), stoppingToken); // Her bir saatte tekrar et
         }
     }
 }
