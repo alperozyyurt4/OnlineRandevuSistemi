@@ -19,15 +19,15 @@ namespace OnlineRandevuSistemi.Business.Services
         private readonly IMapper _mapper;
         private readonly IEmployeeService _employeeService;
         private readonly IMemoryCache _cache;
-//        private readonly IRedisCacheService _redisCacheService;
+        private readonly IRedisCacheService _redisCacheService;
 
         public ServiceService(
             IRepository<Service> serviceRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper,
             IEmployeeService employeeService,
-            IMemoryCache cache
-//            IRedisCacheService redisCacheService
+            IMemoryCache cache,
+            IRedisCacheService redisCacheService
             )
 
         {
@@ -36,19 +36,19 @@ namespace OnlineRandevuSistemi.Business.Services
             _mapper = mapper;
             _employeeService = employeeService;
             _cache = cache;
-//            _redisCacheService = redisCacheService;
+            _redisCacheService = redisCacheService;
         }
 
         public async Task<IEnumerable<ServiceDto>> GetAllServicesAsync()
         {
-  //          return await _redisCacheService.GetOrSetServicesAsync(async () =>
-    //        {
+            return await _redisCacheService.GetOrSetServicesAsync(async () =>
+            {
                 var services = await _serviceRepository.TableNoTracking
                .Where(s => !s.IsDeleted)
                .ToListAsync();
 
                 return _mapper.Map<IEnumerable<ServiceDto>>(services);
-      //      });
+            });
         }
 
         public async Task<ServiceDto> GetServiceByIdAsync(int id)
@@ -63,7 +63,7 @@ namespace OnlineRandevuSistemi.Business.Services
             await _serviceRepository.AddAsync(service);
             await _unitOfWork.SaveChangesAsync();
 
-//            await _redisCacheService.ClearCacheAsync("services-all");
+            await _redisCacheService.ClearCacheAsync("services-all");
 
 
             return _mapper.Map<ServiceDto>(service);
@@ -81,7 +81,7 @@ namespace OnlineRandevuSistemi.Business.Services
             await _serviceRepository.UpdateAsync(service);
             await _unitOfWork.SaveChangesAsync();
 
-  //          await _redisCacheService.ClearCacheAsync("services-all");
+            await _redisCacheService.ClearCacheAsync("services-all");
 
 
             return _mapper.Map<ServiceDto>(service);
@@ -110,7 +110,7 @@ namespace OnlineRandevuSistemi.Business.Services
             await _serviceRepository.DeleteAsync(id);
             await _unitOfWork.SaveChangesAsync();
 
-    //        await _redisCacheService.ClearCacheAsync("services-all");
+            await _redisCacheService.ClearCacheAsync("services-all");
 
 
             return true;

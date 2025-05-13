@@ -1,4 +1,4 @@
-﻿/*
+﻿
 
 using OnlineRandevuSistemi.Business.DTOs;
 using System;
@@ -20,4 +20,3 @@ namespace OnlineRandevuSistemi.Business.Interfaces
         Task ClearCacheAsync(string key); // Cache silmek için
     }
 }
-*/

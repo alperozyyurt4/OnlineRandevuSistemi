@@ -217,6 +217,8 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                     }
                 }
 
+
+              
                 model.Services = (await _serviceService.GetAllServicesAsync())
                     .Select(s => new SelectListItem { Value = s.Id.ToString(), Text = s.Name }).ToList();
                 model.Employees = (await _employeeService.GetAllEmployeesAsync())
@@ -226,6 +228,12 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
 
                 return View(model);
             }
+            // Geçmiş tarih kontrolü
+            var selectedDateTime = DateTime.Parse($"{model.AppointmentDate:yyyy-MM-dd} {model.SelectedTime}");
+            if (selectedDateTime < DateTime.Now)
+            {
+                ModelState.AddModelError("", "Geçmiş bir tarihe randevu oluşturulamaz!");
+            }
 
             var dto = new AppointmentUpdateDto
             {
@@ -233,7 +241,7 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
                 ServiceId = model.ServiceId,
                 EmployeeId = model.EmployeeId,
                 CustomerId = model.CustomerId,
-                AppointmentDate = model.AppointmentDate,
+                AppointmentDate = selectedDateTime,
                 Notes = model.Notes
             };
 

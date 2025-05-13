@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using OnlineRandevuSistemi.Business.DTOs;
 using OnlineRandevuSistemi.Business.Interfaces;
 using OnlineRandevuSistemi.Core.Entities;
@@ -21,12 +22,42 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             _customerService = customerService;
             _userManager = userManager;
         }
-
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder)
         {
             var customers = await _customerService.GetAllCustomersAsync();
+
+            string currentColumn = "";
+            string currentDirection = "asc";
+
+            customers = sortOrder switch
+            {
+                "name_desc" => customers.OrderByDescending(c => c.FirstName),
+                "lastname_asc" => customers.OrderBy(c => c.LastName),
+                "lastname_desc" => customers.OrderByDescending(c => c.LastName),
+                "email_asc" => customers.OrderBy(c => c.Email),
+                "email_desc" => customers.OrderByDescending(c => c.Email),
+                _ => customers.OrderBy(c => c.FirstName)
+            };
+
+            // İkon kontrolü için ViewBag
+            if (!string.IsNullOrEmpty(sortOrder))
+            {
+                var parts = sortOrder.Split('_');
+                currentColumn = parts[0];
+                currentDirection = parts.Length > 1 && parts[1] == "desc" ? "desc" : "asc";
+            }
+
+            ViewBag.CurrentSortColumn = currentColumn;
+            ViewBag.CurrentSortDirection = currentDirection;
+
+            ViewBag.NameSort = sortOrder == "name_desc" ? "name_asc" : "name_desc";
+            ViewBag.LastNameSort = sortOrder == "lastname_desc" ? "lastname_asc" : "lastname_desc";
+            ViewBag.EmailSort = sortOrder == "email_desc" ? "email_asc" : "email_desc";
+
             return View(customers);
         }
+
+
 
         [HttpGet]
         public IActionResult Create()

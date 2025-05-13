@@ -21,18 +21,46 @@ namespace OnlineRandevuSistemi.Web.Areas.Employee.Controllers
             _userManager = userManager;
             _unitOfWork = unitOfWork;
         }
-
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder)
         {
             var user = await _userManager.GetUserAsync(User);
 
-            var notifications = await _notificationRepository.TableNoTracking
-                .Where(n => n.UserId == user.Id)
-                .OrderByDescending(n => n.CreatedDate)
-                .ToListAsync();
+            var query = _notificationRepository.TableNoTracking
+                .Where(n => n.UserId == user.Id);
 
+            string col = "", dir = "asc";
+
+            if (!string.IsNullOrEmpty(sortOrder))
+            {
+                var parts = sortOrder.Split('_');
+                col = parts[0];
+                dir = parts.Length > 1 ? parts[1] : "asc";
+            }
+
+            query = (col, dir) switch
+            {
+                ("date", "asc") => query.OrderBy(n => n.CreatedDate),
+                ("date", "desc") => query.OrderByDescending(n => n.CreatedDate),
+                ("title", "asc") => query.OrderBy(n => n.Title),
+                ("title", "desc") => query.OrderByDescending(n => n.Title),
+                ("type", "asc") => query.OrderBy(n => n.Type),
+                ("type", "desc") => query.OrderByDescending(n => n.Type),
+                ("read", "asc") => query.OrderBy(n => n.IsRead),
+                ("read", "desc") => query.OrderByDescending(n => n.IsRead),
+                _ => query.OrderByDescending(n => n.CreatedDate)
+            };
+
+            ViewBag.CurrentSortColumn = col;
+            ViewBag.CurrentSortDirection = dir;
+            ViewBag.DateSort = col == "date" && dir == "asc" ? "date_desc" : "date_asc";
+            ViewBag.TitleSort = col == "title" && dir == "asc" ? "title_desc" : "title_asc";
+            ViewBag.TypeSort = col == "type" && dir == "asc" ? "type_desc" : "type_asc";
+            ViewBag.ReadSort = col == "read" && dir == "asc" ? "read_desc" : "read_asc";
+
+            var notifications = await query.ToListAsync();
             return View(notifications);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> MarkAsRead(int id)

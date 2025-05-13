@@ -54,7 +54,7 @@ public class AppointmentReminderService : BackgroundService
                 }
             }
 
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken); // Her bir saatte tekrar et
+            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // Her beş  dakikada tekrar et
         }
     }
 }

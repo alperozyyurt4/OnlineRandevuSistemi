@@ -17,11 +17,41 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             _serviceService = serviceService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder)
         {
             var services = await _serviceService.GetAllServicesAsync();
+
+            string currentColumn = "";
+            string currentDirection = "asc";
+
+            services = sortOrder switch
+            {
+                "name_desc" => services.OrderByDescending(s => s.Name),
+                "name_asc" => services.OrderBy(s => s.Name),
+                "price_desc" => services.OrderByDescending(s => s.Price),
+                "price_asc" => services.OrderBy(s => s.Price),
+                "duration_desc" => services.OrderByDescending(s => s.DurationMinutes),
+                "duration_asc" => services.OrderBy(s => s.DurationMinutes),
+                _ => services.OrderBy(s => s.Name) // default: Name ascending
+            };
+
+            if (!string.IsNullOrEmpty(sortOrder))
+            {
+                var parts = sortOrder.Split('_');
+                currentColumn = parts[0];
+                currentDirection = parts.Length > 1 && parts[1] == "desc" ? "desc" : "asc";
+            }
+
+            ViewBag.CurrentSortColumn = currentColumn;
+            ViewBag.CurrentSortDirection = currentDirection;
+
+            ViewBag.NameSort = sortOrder == "name_desc" ? "name_asc" : "name_desc";
+            ViewBag.PriceSort = sortOrder == "price_desc" ? "price_asc" : "price_desc";
+            ViewBag.DurationSort = sortOrder == "duration_desc" ? "duration_asc" : "duration_desc";
+
             return View(services);
         }
+
 
         public IActionResult Create()
         {

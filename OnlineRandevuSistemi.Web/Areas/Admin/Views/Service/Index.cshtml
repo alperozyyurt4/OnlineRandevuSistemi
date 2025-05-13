@@ -19,13 +19,38 @@
                 <table class="table table-hover table-bordered mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Ad</th>
+                            <th>
+                                <a asp-action="Index" asp-route-sortOrder="@ViewBag.NameSort" class="text-decoration-none text-dark">
+                                    Ad
+                                    @if (ViewBag.CurrentSortColumn == "name")
+                                    {
+                                        <i class="bi @(ViewBag.CurrentSortDirection == "asc" ? "bi-caret-up-fill" : "bi-caret-down-fill")"></i>
+                                    }
+                                </a>
+                            </th>
                             <th>Açıklama</th>
-                            <th>Fiyat</th>
-                            <th>Süre (dk)</th>
+                            <th>
+                                <a asp-action="Index" asp-route-sortOrder="@ViewBag.PriceSort" class="text-decoration-none text-dark">
+                                    Fiyat
+                                    @if (ViewBag.CurrentSortColumn == "price")
+                                    {
+                                        <i class="bi @(ViewBag.CurrentSortDirection == "asc" ? "bi-caret-up-fill" : "bi-caret-down-fill")"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th>
+                                <a asp-action="Index" asp-route-sortOrder="@ViewBag.DurationSort" class="text-decoration-none text-dark">
+                                    Süre (dk)
+                                    @if (ViewBag.CurrentSortColumn == "duration")
+                                    {
+                                        <i class="bi @(ViewBag.CurrentSortDirection == "asc" ? "bi-caret-up-fill" : "bi-caret-down-fill")"></i>
+                                    }
+                                </a>
+                            </th>
                             <th class="text-end" style="width: 140px;">İşlemler</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         @if (Model != null && Model.Any())
                         {

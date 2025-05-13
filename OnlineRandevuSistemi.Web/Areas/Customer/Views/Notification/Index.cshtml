@@ -17,14 +17,47 @@
         <table class="table table-bordered table-hover shadow-sm">
             <thead class="table-light">
                 <tr>
-                    <th>Tarih</th>
-                    <th>Başlık</th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewBag.DateSort" class="text-decoration-none text-dark">
+                            Tarih
+                            @if (ViewBag.CurrentSortColumn == "date")
+                            {
+                                <i class="bi @(ViewBag.CurrentSortDirection == "asc" ? "bi-caret-up-fill" : "bi-caret-down-fill")"></i>
+                            }
+                        </a>
+                    </th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewBag.TitleSort" class="text-decoration-none text-dark">
+                            Başlık
+                            @if (ViewBag.CurrentSortColumn == "title")
+                            {
+                                <i class="bi @(ViewBag.CurrentSortDirection == "asc" ? "bi-caret-up-fill" : "bi-caret-down-fill")"></i>
+                            }
+                        </a>
+                    </th>
                     <th>Mesaj</th>
-                    <th>Tür</th>
-                    <th>Durum</th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewBag.TypeSort" class="text-decoration-none text-dark">
+                            Tür
+                            @if (ViewBag.CurrentSortColumn == "type")
+                            {
+                                <i class="bi @(ViewBag.CurrentSortDirection == "asc" ? "bi-caret-up-fill" : "bi-caret-down-fill")"></i>
+                            }
+                        </a>
+                    </th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewBag.ReadSort" class="text-decoration-none text-dark">
+                            Durum
+                            @if (ViewBag.CurrentSortColumn == "read")
+                            {
+                                <i class="bi @(ViewBag.CurrentSortDirection == "asc" ? "bi-caret-up-fill" : "bi-caret-down-fill")"></i>
+                            }
+                        </a>
+                    </th>
                     <th>Aksiyon</th>
                 </tr>
             </thead>
+
             <tbody>
                 @foreach (var item in Model)
                 {

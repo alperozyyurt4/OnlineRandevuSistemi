@@ -21,19 +21,49 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
             _userManager = userManager;
             _unitOfWork = unitOfWork;
         }
-
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder)
         {
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null) return Unauthorized();
 
-            var notifications = await _notificationRepository.TableNoTracking
-                .Where(n => n.UserId == currentUser.Id)
-                .OrderByDescending(n => n.CreatedDate)
-                .ToListAsync();
+            var query = _notificationRepository.TableNoTracking
+                .Where(n => n.UserId == currentUser.Id);
 
+            string currentColumn = "";
+            string currentDirection = "asc";
+
+            query = sortOrder switch
+            {
+                "date_desc" => query.OrderByDescending(n => n.CreatedDate),
+                "date_asc" => query.OrderBy(n => n.CreatedDate),
+                "title_desc" => query.OrderByDescending(n => n.Title),
+                "title_asc" => query.OrderBy(n => n.Title),
+                "type_desc" => query.OrderByDescending(n => n.Type),
+                "type_asc" => query.OrderBy(n => n.Type),
+                "read_desc" => query.OrderByDescending(n => n.IsRead),
+                "read_asc" => query.OrderBy(n => n.IsRead),
+                _ => query.OrderByDescending(n => n.CreatedDate)
+            };
+
+            if (!string.IsNullOrEmpty(sortOrder))
+            {
+                var parts = sortOrder.Split('_');
+                currentColumn = parts[0];
+                currentDirection = parts.Length > 1 ? parts[1] : "asc";
+            }
+
+            ViewBag.CurrentSortColumn = currentColumn;
+            ViewBag.CurrentSortDirection = currentDirection;
+
+            ViewBag.DateSort = currentColumn == "date" && currentDirection == "asc" ? "date_desc" : "date_asc";
+            ViewBag.TitleSort = currentColumn == "title" && currentDirection == "asc" ? "title_desc" : "title_asc";
+            ViewBag.TypeSort = currentColumn == "type" && currentDirection == "asc" ? "type_desc" : "type_asc";
+            ViewBag.ReadSort = currentColumn == "read" && currentDirection == "asc" ? "read_desc" : "read_asc";
+
+            var notifications = await query.ToListAsync();
             return View(notifications);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

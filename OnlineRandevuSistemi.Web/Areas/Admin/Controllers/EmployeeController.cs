@@ -26,12 +26,49 @@ namespace OnlineRandevuSistemi.Web.Areas.Admin.Controllers
             _serviceService = serviceService;
         }
 
-
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder)
         {
             var employees = await _employeeService.GetAllEmployeesAsync();
+
+            string currentColumn = "";
+            string currentDirection = "asc";
+
+            employees = sortOrder switch
+            {
+                "name_desc" => employees.OrderByDescending(e => e.FirstName),
+                "lastname_asc" => employees.OrderBy(e => e.LastName),
+                "lastname_desc" => employees.OrderByDescending(e => e.LastName),
+                "email_asc" => employees.OrderBy(e => e.Email),
+                "email_desc" => employees.OrderByDescending(e => e.Email),
+                "position_asc" => employees.OrderBy(e => e.Position),
+                "position_desc" => employees.OrderByDescending(e => e.Position),
+                "hourly_asc" => employees.OrderBy(e => e.HourlyDate),
+                "hourly_desc" => employees.OrderByDescending(e => e.HourlyDate),
+                "status_asc" => employees.OrderBy(e => e.IsAvailable),
+                "status_desc" => employees.OrderByDescending(e => e.IsAvailable),
+                _ => employees.OrderBy(e => e.FirstName)
+            };
+
+            if (!string.IsNullOrEmpty(sortOrder))
+            {
+                var parts = sortOrder.Split('_');
+                currentColumn = parts[0];
+                currentDirection = parts.Length > 1 && parts[1] == "desc" ? "desc" : "asc";
+            }
+
+            ViewBag.CurrentSortColumn = currentColumn;
+            ViewBag.CurrentSortDirection = currentDirection;
+
+            ViewBag.NameSort = sortOrder == "name_desc" ? "name_asc" : "name_desc";
+            ViewBag.LastNameSort = sortOrder == "lastname_desc" ? "lastname_asc" : "lastname_desc";
+            ViewBag.EmailSort = sortOrder == "email_desc" ? "email_asc" : "email_desc";
+            ViewBag.PositionSort = sortOrder == "position_desc" ? "position_asc" : "position_desc";
+            ViewBag.HourlySort = sortOrder == "hourly_desc" ? "hourly_asc" : "hourly_desc";
+            ViewBag.StatusSort = sortOrder == "status_desc" ? "status_asc" : "status_desc";
+
             return View(employees);
         }
+
         [HttpGet]
         public async Task<IActionResult> Create()
         {

@@ -34,30 +34,98 @@ namespace OnlineRandevuSistemi.Web.Areas.Customer.Controllers
             _employeeService = employeeService;
             _mapper = mapper;
         }
-
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string upcomingSort, string pastSort)
         {
             var user = await _userManager.GetUserAsync(User);
             var customer = await _customerService.GetCustomerByUserIdAsync(user.Id);
             var allAppointments = await _appointmentService.GetAppointmentsByCustomerIdAsync(customer.Id);
-
             var now = DateTime.Now;
+
+            var upcoming = allAppointments.Where(a => a.AppointmentDate >= now);
+            var past = allAppointments.Where(a => a.AppointmentDate < now);
+
+            // 🌿 Varsayılanlar
+            ViewBag.UpcomingColumn = "";
+            ViewBag.UpcomingDir = "asc";
+            ViewBag.PastColumn = "";
+            ViewBag.PastDir = "asc";
+
+            // 🔁 Yaklaşan Sıralama
+            if (!string.IsNullOrEmpty(upcomingSort))
+            {
+                var parts = upcomingSort.Split('_');
+                var col = parts[0];
+                var dir = parts.Length > 1 ? parts[1] : "asc";
+                ViewBag.UpcomingColumn = col;
+                ViewBag.UpcomingDir = dir;
+
+                upcoming = (col, dir) switch
+                {
+                    ("service", "asc") => upcoming.OrderBy(a => a.ServiceName),
+                    ("service", "desc") => upcoming.OrderByDescending(a => a.ServiceName),
+                    ("employee", "asc") => upcoming.OrderBy(a => a.EmployeeName),
+                    ("employee", "desc") => upcoming.OrderByDescending(a => a.EmployeeName),
+                    ("date", "asc") => upcoming.OrderBy(a => a.AppointmentDate),
+                    ("date", "desc") => upcoming.OrderByDescending(a => a.AppointmentDate),
+                    ("status", "asc") => upcoming.OrderBy(a => a.Status),
+                    ("status", "desc") => upcoming.OrderByDescending(a => a.Status),
+                    _ => upcoming.OrderBy(a => a.AppointmentDate)
+                };
+            }
+            else
+            {
+                upcoming = upcoming.OrderBy(a => a.AppointmentDate);
+            }
+
+            // 🔁 Geçmiş Sıralama
+            if (!string.IsNullOrEmpty(pastSort))
+            {
+                var parts = pastSort.Split('_');
+                var col = parts[0];
+                var dir = parts.Length > 1 ? parts[1] : "asc";
+                ViewBag.PastColumn = col;
+                ViewBag.PastDir = dir;
+
+                past = (col, dir) switch
+                {
+                    ("service", "asc") => past.OrderBy(a => a.ServiceName),
+                    ("service", "desc") => past.OrderByDescending(a => a.ServiceName),
+                    ("employee", "asc") => past.OrderBy(a => a.EmployeeName),
+                    ("employee", "desc") => past.OrderByDescending(a => a.EmployeeName),
+                    ("date", "asc") => past.OrderBy(a => a.AppointmentDate),
+                    ("date", "desc") => past.OrderByDescending(a => a.AppointmentDate),
+                    ("status", "asc") => past.OrderBy(a => a.Status),
+                    ("status", "desc") => past.OrderByDescending(a => a.Status),
+                    _ => past.OrderByDescending(a => a.AppointmentDate)
+                };
+            }
+            else
+            {
+                past = past.OrderByDescending(a => a.AppointmentDate);
+            }
+
+            // 🔁 ViewBag - Linkler için toggle
+            ViewBag.UpcomingServiceSort = ViewBag.UpcomingColumn == "service" && ViewBag.UpcomingDir == "asc" ? "service_desc" : "service_asc";
+            ViewBag.UpcomingEmployeeSort = ViewBag.UpcomingColumn == "employee" && ViewBag.UpcomingDir == "asc" ? "employee_desc" : "employee_asc";
+            ViewBag.UpcomingDateSort = ViewBag.UpcomingColumn == "date" && ViewBag.UpcomingDir == "asc" ? "date_desc" : "date_asc";
+            ViewBag.UpcomingStatusSort = ViewBag.UpcomingColumn == "status" && ViewBag.UpcomingDir == "asc" ? "status_desc" : "status_asc";
+
+            ViewBag.PastServiceSort = ViewBag.PastColumn == "service" && ViewBag.PastDir == "asc" ? "service_desc" : "service_asc";
+            ViewBag.PastEmployeeSort = ViewBag.PastColumn == "employee" && ViewBag.PastDir == "asc" ? "employee_desc" : "employee_asc";
+            ViewBag.PastDateSort = ViewBag.PastColumn == "date" && ViewBag.PastDir == "asc" ? "date_desc" : "date_asc";
+            ViewBag.PastStatusSort = ViewBag.PastColumn == "status" && ViewBag.PastDir == "asc" ? "status_desc" : "status_asc";
 
             var model = new AppointmentListViewModel
             {
-                UpcomingAppointments = allAppointments
-                    .Where(a => a.AppointmentDate >= now)
-                    .OrderBy(a => a.AppointmentDate)
-                    .ToList(),
-
-                PastAppointments = allAppointments
-                    .Where(a => a.AppointmentDate < now)
-                    .OrderByDescending(a => a.AppointmentDate)
-                    .ToList()
+                UpcomingAppointments = upcoming.ToList(),
+                PastAppointments = past.ToList()
             };
 
             return View(model);
         }
+
+
+
         public async Task<IActionResult> Create(int? serviceId)
         {
             var model = new CustomerAppointmentCreateViewModel

@@ -41,7 +41,6 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddMemoryCache();
 
 // Redis bağlantısı (StackExchange.Redis ile)
-/*
 try
 {
     var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection")
@@ -54,7 +53,6 @@ catch (Exception ex)
 {
     Console.WriteLine("⚠ Redis'e bağlanılamadı. Cache devre dışı. => " + ex.Message);
 }
-*/
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile), typeof(WebMappingProfile));
@@ -78,7 +76,7 @@ builder.Services.AddHostedService<AppointmentReminderService>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-var app = builder.Build();
+ var app = builder.Build();
 
 // Middleware
 if (app.Environment.IsDevelopment())

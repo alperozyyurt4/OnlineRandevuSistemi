@@ -1,6 +1,6 @@
 ﻿
 
-/* Redis 
+// Redis 
 
 using OnlineRandevuSistemi.Business.DTOs;
 using OnlineRandevuSistemi.Business.Interfaces;
@@ -112,4 +112,3 @@ namespace OnlineRandevuSistemi.Business.Services
     }
 }
 
-*/

@@ -25,7 +25,7 @@ namespace OnlineRandevuSistemi.Business.Services
         private readonly IEmailService _emailService;
         private readonly IRepository<Notification> _notificationRepository;
         private readonly IRepository<Customer> _customerRepository;
-//        private readonly IRedisCacheService _redisCacheService;
+        private readonly IRedisCacheService _redisCacheService;
 
         public AppointmentService(
             IRepository<Appointment> appointmentRepository,
@@ -36,10 +36,8 @@ namespace OnlineRandevuSistemi.Business.Services
             ISmsService smsService,
             IEmailService emailService,
             IRepository<Notification> notificationRepository,
-            IRepository<Customer> customerRepository
-
-
-//          IRedisCacheService redisCacheService
+            IRepository<Customer> customerRepository,
+            IRedisCacheService redisCacheService
 )
         {
             _appointmentRepository = appointmentRepository;
@@ -51,13 +49,13 @@ namespace OnlineRandevuSistemi.Business.Services
             _emailService = emailService;
             _notificationRepository = notificationRepository;
             _customerRepository = customerRepository;
-            //            _redisCacheService = redisCacheService;
+            _redisCacheService = redisCacheService;
         }
 
         public async Task<IEnumerable<AppointmentDto>> GetAllAppointmentsAsync()
         {
-//          return await _redisCacheService.GetOrSetAppointmentsAsync(async () =>
-//          {
+            return await _redisCacheService.GetOrSetAppointmentsAsync(async () =>
+       {
                 var appointments = await _appointmentRepository.TableNoTracking
                 .Where(a => !a.IsDeleted)
                 .Include(a => a.Employee)
@@ -68,7 +66,7 @@ namespace OnlineRandevuSistemi.Business.Services
                 .ToListAsync();
 
                 return _mapper.Map<IEnumerable<AppointmentDto>>(appointments);
-//            });
+            });
         }
 
 
@@ -184,7 +182,7 @@ namespace OnlineRandevuSistemi.Business.Services
             }
 
 
-            //          await _redisCacheService.ClearCacheAsync("appointments-all");
+                await _redisCacheService.ClearCacheAsync("appointments-all");
 
 
             return _mapper.Map<AppointmentDto>(appointment);
@@ -247,7 +245,7 @@ namespace OnlineRandevuSistemi.Business.Services
             }
 
 
-            //          await _redisCacheService.ClearCacheAsync("appointments-all");
+                await _redisCacheService.ClearCacheAsync("appointments-all");
 
             return _mapper.Map<AppointmentDto>(appointment);
         }
@@ -303,7 +301,7 @@ namespace OnlineRandevuSistemi.Business.Services
             }
 
 
-            //          await _redisCacheService.ClearCacheAsync("appointments-all");
+                await _redisCacheService.ClearCacheAsync("appointments-all");
 
 
             return true;
@@ -370,7 +368,7 @@ namespace OnlineRandevuSistemi.Business.Services
 
             }
 
-            //          await _redisCacheService.ClearCacheAsync("appointments-all");
+                 await _redisCacheService.ClearCacheAsync("appointments-all");
 
             return true;
         }
