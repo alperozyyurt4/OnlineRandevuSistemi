@@ -204,14 +204,13 @@
                 }
             });
 
-            // Form submit validation
-            $("form").on("submit", function () {
+            $("form[action='/Admin/Appointment/Create']").on("submit", function () {
                 if (!$('#SelectedTime').val() || !$('#AppointmentDate').val()) {
                     alert("Lütfen bir tarih ve saat seçiniz.");
                     return false;
                 }
 
-                // Geçmiş tarih kontrolü (çift kontrol için)
+                // Geçmiş tarih kontrolü
                 const selectedDate = $('#AppointmentDate').val();
                 const selectedTime = $('#SelectedTime').val();
                 const selectedDateTime = new Date(`${selectedDate}T${selectedTime}`);

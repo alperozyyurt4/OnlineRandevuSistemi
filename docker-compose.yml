@@ -1,0 +1,31 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:80"
+    depends_on:
+      - redis
+      - sqlserver
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=OnlineRandevuSistemi;User=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true
+      - ConnectionStrings__RedisConnection=redis:6379,abortConnect=false
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - ACCEPT_EULA=Y
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserverdata:/var/opt/mssql
+
+volumes:
+  sqlserverdata:
