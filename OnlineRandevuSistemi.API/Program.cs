@@ -10,18 +10,17 @@ using OnlineRandevuSistemi.Core.Entities;
 using OnlineRandevuSistemi.Core.Interfaces;
 using OnlineRandevuSistemi.DataAccess.Context;
 using OnlineRandevuSistemi.DataAccess.Repositories;
+using StackExchange.Redis; // ✅ Redis için gerekli
 using System.Text;
-using AutoMapper;
-using StackExchange.Redis; // ✅ Redis için eklendi
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ?? Bağlantı
+// ✅ Veritabanı bağlantısı
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// ?? Identity yapılandırması
+// ✅ Identity ayarları
 builder.Services.AddIdentityCore<AppUser>(options =>
 {
     options.Password.RequireDigit = false;
@@ -32,7 +31,7 @@ builder.Services.AddIdentityCore<AppUser>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// ?? JWT Ayarları
+// ✅ JWT ayarları
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -49,23 +48,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// ✅ Redis Bağlantısı
-/*
-try
+// ✅ Redis bağlantısı
+var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection") ?? "localhost:6379";
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
-    var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection")
-        ?? "localhost:6379,abortConnect=false";
+    return ConnectionMultiplexer.Connect(redisConnectionString);
+});
+builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
 
-    builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
-    builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
-}
-catch (Exception ex)
-{
-    Console.WriteLine("⚠ Redis'e bağlanılamadı. Cache devre dışı. => " + ex.Message);
-}
-*/
+// ✅ Servisler
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<IEmployeeService, OnlineRandevuSistemi.Business.Services.EmployeeService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<ISmsService, DummySmsService>();
+builder.Services.AddScoped<IEmailService, DummyEmailService>();
 
-// ?? Swagger
+// ✅ Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -75,7 +78,6 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1"
     });
 
-    // Swagger'da "Authorize" butonu için
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -92,8 +94,8 @@ builder.Services.AddSwaggerGen(c =>
             {
                 Reference = new OpenApiReference
                 {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
                 }
             },
             Array.Empty<string>()
@@ -101,30 +103,18 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// ?? Diğer servisler
-builder.Services.AddMemoryCache(); // ServiceService içinde GetPopular gibi yerler için hâlâ aktif olabilir
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IAppointmentService, AppointmentService>();
-builder.Services.AddScoped<IServiceService, ServiceService>();
-builder.Services.AddScoped<IEmployeeService, OnlineRandevuSistemi.Business.Services.EmployeeService>();
-builder.Services.AddScoped<ICustomerService, CustomerService>();
-
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// ?? Middleware
+// ✅ Middleware
 app.UseHttpsRedirection();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Online Randevu Sistemi API v1");
 });
-
-app.UseAuthentication(); // JWT çalışsın diye
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 app.Run();
